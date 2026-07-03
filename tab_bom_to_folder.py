@@ -8,17 +8,17 @@ class ProfileTab(tb.Frame):
         super().__init__(parent, padding=20)
 
         # --- Form Inputs ---
-        self.lbl_username = tb.Label(self, text="Username:", font=("Helvetica", 11))
-        self.lbl_username.pack(anchor=W, pady=(0, 5))
+        self.lbl_bom_directory = tb.Label(self, text="BOM directory:", font=("Helvetica", 11))
+        self.lbl_bom_directory.pack(anchor=W, pady=(0, 5))
 
-        self.ent_username = tb.Entry(self, bootstyle="info")
-        self.ent_username.pack(fill=X, pady=(0, 15))
+        self.ent_bom_directory = tb.Entry(self, bootstyle="info")
+        self.ent_bom_directory.pack(fill=X, pady=(0, 15))
 
-        self.lbl_email = tb.Label(self, text="Email Address:", font=("Helvetica", 11))
-        self.lbl_email.pack(anchor=W, pady=(0, 5))
+        self.lbl_working_folder = tb.Label(self, text="Working folder:", font=("Helvetica", 11))
+        self.lbl_working_folder.pack(anchor=W, pady=(0, 5))
 
-        self.ent_email = tb.Entry(self, bootstyle="info")
-        self.ent_email.pack(fill=X, pady=(0, 15))
+        self.ent_working_folder = tb.Entry(self, bootstyle="info")
+        self.ent_working_folder.pack(fill=X, pady=(0, 15))
 
         # --- New Actions Layout (Pushed to the bottom) ---
         # Compare Button

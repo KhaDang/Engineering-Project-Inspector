@@ -2,8 +2,8 @@ import ttkbootstrap as tb
 from ttkbootstrap.constants import *
 
 # Import your custom tabs from separate files
-from tab_Profile import ProfileTab
-from tab_setting import SettingsTab
+from tab_bom_to_folder import ProfileTab
+from tab_folder_to_bom import SettingsTab
 
 # Initialize main application
 app = tb.Window(themename="superhero")
@@ -19,7 +19,7 @@ profile_tab = ProfileTab(notebook)
 settings_tab = SettingsTab(notebook)
 
 # Link the modular tab objects to the notebook tabs
-notebook.add(profile_tab, text="User Profile")
-notebook.add(settings_tab, text="Settings")
+notebook.add(profile_tab, text="BOM -> FOLDER")
+notebook.add(settings_tab, text="FOLDER -> BOM")
 
 app.mainloop()
