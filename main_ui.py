@@ -8,7 +8,7 @@ from tab_folder_to_bom import SettingsTab
 # Initialize main application
 app = tb.Window(themename="superhero")
 app.title("Modular Notebook UI")
-app.geometry("500x400")
+app.geometry("800x600")
 
 # Create the Notebook widget
 notebook = tb.Notebook(app, bootstyle="primary")
