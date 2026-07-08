@@ -6,7 +6,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
 
-class SettingsTab(ttk.Frame):
+class FolderToBOM(ttk.Frame):
     def __init__(self, parent):
         # Initialize the parent tb.Frame class
         super().__init__(parent, padding=20)
@@ -73,30 +73,38 @@ class SettingsTab(ttk.Frame):
         type_lbl = ttk.Label(type_row, text="Type", width=8)
         type_lbl.pack(side=LEFT, padx=(15, 0))
 
-        contains_opt = ttk.Radiobutton(
+        sldprt_opt = ttk.Radiobutton(
             master=type_row,
-            text="Contains",
+            text=".sldprt",
             variable=self.type_var,
-            value="contains"
+            value=".sldprt"
         )
-        contains_opt.pack(side=LEFT)
+        sldprt_opt.pack(side=LEFT)
 
-        startswith_opt = ttk.Radiobutton(
+        sldasm_opt = ttk.Radiobutton(
             master=type_row,
-            text="StartsWith",
+            text=".sldasm",
             variable=self.type_var,
-            value="startswith"
+            value=".sldasm"
         )
-        startswith_opt.pack(side=LEFT, padx=15)
+        sldasm_opt.pack(side=LEFT, padx=15)
 
-        endswith_opt = ttk.Radiobutton(
+        slddrw_opt = ttk.Radiobutton(
             master=type_row,
-            text="EndsWith",
+            text=".slddrw",
             variable=self.type_var,
-            value="endswith"
+            value=".slddrw"
         )
-        endswith_opt.pack(side=LEFT)
-        endswith_opt.invoke()
+        slddrw_opt.pack(side=LEFT)
+        slddrw_opt.invoke()
+
+        browse_btn = ttk.Button(
+            master=type_row,
+            text="Start Compare",
+            command=self.browse_bom_file,
+            width=20
+        )
+        browse_btn.pack(side=RIGHT, padx=5)
 
     def create_results_view(self):
         """Add result treeview to labelframe"""
