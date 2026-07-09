@@ -3,77 +3,71 @@ import tkinter as tk
 from tkinter import filedialog
 from enum import Enum
 import ttkbootstrap as ttk
-#
+from ttkbootstrap.constants import *
 
-class BrowseType(Enum):
-    FOLDER = 1
-    FILE = 2
-
-class PathSelector(ttk.Frame):
+class TypeSelector(ttk.Frame):
     """
     Reusable widget consisting of:
         Label
-        Entry
+        Radion button
         Browse Button
-    Can be used for:
-        • Folder selection
-        • Excel file selection
-        • Output folder
-        • PDF
-        • STEP
+
     """
     def __init__(
             self,
             master,
-            label="Path",
-            browse_type=BrowseType.FOLDER,
-            filetypes=None,
-            button_text="Browse",
+            label="Type",
+            button_text="Go",
             **kwargs
     ):
         super().__init__(master, **kwargs)
-        self.browse_type = browse_type
-        self.filetypes = filetypes
-        self.path = tk.StringVar()
+        self.type_var = ttk.StringVar(value='.sldprt')
         self.create_widgets(
             label,
             button_text
         )
 
     def create_widgets(self, label, button_text):
-        self.columnconfigure(1, weight=1)
-        ttk.Label(
+        # Label
+        type_lbl = ttk.Label(
             self,
             text=label,
             width=15
-        ).grid(
-            row=0,
-            column=0,
-            padx=(10, 5),
-            pady=5,
-            sticky="w"
         )
-        ttk.Entry(
+        type_lbl.pack(side=LEFT)
+        # Radion button
+        sldprt_opt = ttk.Radiobutton(
             self,
-            textvariable=self.path
-        ).grid(
-            row=0,
-            column=1,
-            sticky="ew",
-            padx=5,
-            pady=5
+            text=".sldprt",
+            variable=self.type_var,
+            value=".sldprt"
         )
-        ttk.Button(
+        sldprt_opt.pack(side=LEFT)
+
+        sldasm_opt = ttk.Radiobutton(
+            self,
+            text=".sldasm",
+            variable=self.type_var,
+            value=".sldasm"
+        )
+        sldasm_opt.pack(side=LEFT, padx=15)
+
+        slddrw_opt = ttk.Radiobutton(
+            self,
+            text=".slddrw",
+            variable=self.type_var,
+            value=".slddrw"
+        )
+        slddrw_opt.pack(side=LEFT)
+        slddrw_opt.invoke()
+
+        browse_btn = ttk.Button(
             self,
             text=button_text,
-            width=10,
-            command=self.browse
-        ).grid(
-            row=0,
-            column=2,
-            padx=(5,10),
-            pady=5
+            command=self.browse,
+            width=20
         )
+        browse_btn.pack(side=RIGHT, padx=5)
 
     def browse(self):
         if self.browse_type == BrowseType.FOLDER:
@@ -97,12 +91,4 @@ class PathSelector(ttk.Frame):
     # ------------------------------------------------
     # Public Methods
     # ------------------------------------------------
-
-    def get(self):
-        return self.path.get()
-    def set(self, value):
-        self.path.set(value)
-    def clear(self):
-        self.path.set("")
-
 
