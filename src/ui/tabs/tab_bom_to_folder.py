@@ -4,17 +4,25 @@ from tkinter.filedialog import askdirectory
 from ttkbootstrap import utility
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-
+# Import UI
 from ui.components.path_selector import PathSelector
 from ui.components.path_selector import BrowseType
 from ui.components.report_table import ReportTable
 from ui.components.type_seletor import TypeSelector
 
+# Import Services
+from services.folder_scanner import FolderScanner
+
+
 
 class BomToFolder(ttk.Frame):
     def __init__(self, parent):
-
         super().__init__(parent, padding=20)
+        # Instance for FolderScanner
+        self.scanner = FolderScanner()
+
+
+
 
         # header and labelframe option container
         option_text = "Read the BOM file then compare to the name of existing files that stored in Project Folder"
@@ -30,12 +38,12 @@ class BomToFolder(ttk.Frame):
         self.bom_selector.pack(fill="x")
 
         # Add path selector widget at the second row
-        self.file_selector = PathSelector(
+        self.folder_selector = PathSelector(
             self.option_lf,
             label="Project Folder",
             browse_type=BrowseType.FOLDER
         )
-        self.file_selector.pack(fill="x")
+        self.folder_selector.pack(fill="x")
 
 
         # Add type selector widget
@@ -46,10 +54,20 @@ class BomToFolder(ttk.Frame):
         )
         self.type_selector.pack(fill="x")
 
+        # Trigger button!! Test only
+        trigger_button = ttk.Button(
+            self,
+            text="Test!!",
+            width=10,
+            command=self.on_compare
+        )
+        trigger_button.pack(fill='x')
         # Add Result frame label
         result_frame_text = ""
         self.result_frame = ttk.Labelframe(self, text=result_frame_text, padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
+
+
 
         # Add Treeview that equals level to Labelframe.
         columns = (
@@ -73,3 +91,14 @@ class BomToFolder(ttk.Frame):
             bootstyle=(STRIPED, SUCCESS)
         )
         self.progressbar.pack(fill=X, expand=YES)
+
+
+    def on_compare(self):
+        folder = self.folder_selector.get()
+        records = self.scanner.scan_folder(folder)
+        self.report_table.load_records(records)
+
+        # for record in record.values():
+        #     self.report_table.insert_row(
+        #         record.to_table_row()
+        #     )

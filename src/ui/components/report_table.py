@@ -7,26 +7,11 @@ class ReportTable(ttk.Frame):
 
     def __init__(self, master, columns):
         super().__init__(master)
-        self.columns = columns
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.tree = ttk.Treeview(
-            self,
-            columns = self.columns,
-            show='headings',
-        )
+        self.tree = ttk.Treeview(self, columns=columns, show='headings')
         # Add headings for Treeview table
-        for col in self.columns:
+        for col in columns:
             self.tree.heading(col, text=col)
-            self.tree. column(col, width=120)
-
-        # sample data - to delete
-        self.tree.insert(
-            "",
-            "end",
-            values=("130-050001", "Yes", "No")
-        )
+            self.tree.column(col, width=120)
 
         # Add vertical scrollbar to the right side of tree
         self.scrollbar = ttk.Scrollbar(
@@ -41,4 +26,20 @@ class ReportTable(ttk.Frame):
         self.tree.pack(side="left", expand=True, fill="both")
         self.scrollbar.pack(side="right", fill="y")
 
+    def insert_row(self, values):
+        self.tree.insert(
+            "",
+            "end",
+            values=values
+        )
 
+    def clear(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+    def load_records(self, records):
+        self.clear()
+        for record in records.values():
+            self.insert_row(
+                record.to_table_row()
+            )

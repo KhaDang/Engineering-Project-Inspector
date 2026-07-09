@@ -8,6 +8,7 @@ from ui.tabs.tab_folder_to_folder import FolderToFolder
 from ui.tabs.tab_compare_two_files import FileToFile
 
 
+
 # Initialize main application
 app = tb.Window(themename="superhero")
 app.title("Engineering File Manager")
