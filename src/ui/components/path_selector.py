@@ -29,12 +29,14 @@ class PathSelector(ttk.Frame):
             browse_type=BrowseType.FOLDER,
             filetypes=None,
             button_text="Browse",
+            on_path_changed=None,
             **kwargs
     ):
         super().__init__(master, **kwargs)
         self.browse_type = browse_type
         self.filetypes = filetypes
         self.path = tk.StringVar()
+        self.on_path_changed = on_path_changed
         self.create_widgets(
             label,
             button_text
@@ -93,6 +95,10 @@ class PathSelector(ttk.Frame):
             )
             if filename:
                 self.path.set(filename)
+                if self.on_path_changed:
+                    self.on_path_changed(filename)
+
+
 
     # ------------------------------------------------
     # Public Methods

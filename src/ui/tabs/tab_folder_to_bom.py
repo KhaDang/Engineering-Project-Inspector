@@ -39,7 +39,6 @@ class FolderToBOM(ttk.Frame):
         self.type_selector = TypeSelector(
             self.option_lf,
             label='Type',
-            button_text="Go !"
         )
         self.type_selector.pack(fill="x")
 

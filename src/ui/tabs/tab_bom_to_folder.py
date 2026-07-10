@@ -9,10 +9,12 @@ from ui.components.path_selector import PathSelector
 from ui.components.path_selector import BrowseType
 from ui.components.report_table import ReportTable
 from ui.components.type_seletor import TypeSelector
+from ui.components.columns_selector import ColumnsSelector
+
 
 # Import Services
 from services.folder_scanner import FolderScanner
-
+from services.bom_scanner import BomReader
 
 
 class BomToFolder(ttk.Frame):
@@ -20,8 +22,7 @@ class BomToFolder(ttk.Frame):
         super().__init__(parent, padding=20)
         # Instance for FolderScanner
         self.scanner = FolderScanner()
-
-
+        self.bom_reader = BomReader()
 
 
         # header and labelframe option container
@@ -29,15 +30,34 @@ class BomToFolder(ttk.Frame):
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 
-        # Add file selector widget at the first row
+        # Add Bom selector widget
         self.bom_selector = PathSelector(
             self.option_lf,
             label="BOM file",
-            browse_type= BrowseType.FILE
+            browse_type= BrowseType.FILE,
+            on_path_changed=self.on_bom_seletec
         )
         self.bom_selector.pack(fill="x")
+        #-----------------------------------------
+        self.container = ttk.Frame(self.option_lf, padding=5)
 
-        # Add path selector widget at the second row
+        # Add column selector widget
+        self.primary_selector = ColumnsSelector(
+            self.container,
+            label="BOM key"
+        )
+        self.primary_selector.grid(row=0, column=0, padx=(0, 5), pady=1, sticky="w")
+
+        # Add second column selector widget
+        self.secondary_selector = ColumnsSelector(
+            self.container,
+            label="Secondary key"
+        )
+        self.primary_selector.grid(row=0, column=1, padx=(10, 5), pady=1, sticky="w")
+
+        self.container.pack(fill=BOTH, expand=YES)
+        #--------------------------------------------
+        # Add path selector widget
         self.folder_selector = PathSelector(
             self.option_lf,
             label="Project Folder",
@@ -50,7 +70,7 @@ class BomToFolder(ttk.Frame):
         self.type_selector = TypeSelector(
             self.option_lf,
             label='Type',
-            button_text="Go !"
+
         )
         self.type_selector.pack(fill="x")
 
@@ -102,3 +122,10 @@ class BomToFolder(ttk.Frame):
         #     self.report_table.insert_row(
         #         record.to_table_row()
         #     )
+
+
+    def on_bom_selected(self, bom_path):
+        headers = self.bom_reader.read_bom(bom_path)
+        self.primary_selector.set(headers)
+        self.secondary_selector.set(headers)
+
