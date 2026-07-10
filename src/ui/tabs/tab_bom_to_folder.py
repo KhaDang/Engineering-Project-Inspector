@@ -35,7 +35,7 @@ class BomToFolder(ttk.Frame):
             self.option_lf,
             label="BOM file",
             browse_type= BrowseType.FILE,
-            on_path_changed=self.on_bom_seletec
+            on_path_changed=self.on_bom_selected
         )
         self.bom_selector.pack(fill="x")
         #-----------------------------------------
@@ -64,7 +64,6 @@ class BomToFolder(ttk.Frame):
             browse_type=BrowseType.FOLDER
         )
         self.folder_selector.pack(fill="x")
-
 
         # Add type selector widget
         self.type_selector = TypeSelector(
@@ -125,7 +124,7 @@ class BomToFolder(ttk.Frame):
 
 
     def on_bom_selected(self, bom_path):
-        headers = self.bom_reader.read_bom(bom_path)
+        headers = self.bom_reader.read_header(bom_path)
         self.primary_selector.set(headers)
         self.secondary_selector.set(headers)
-
+        print(headers)

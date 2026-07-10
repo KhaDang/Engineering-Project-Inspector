@@ -16,6 +16,9 @@ class BomReader:
     def read_bom(self, file_path):
         search_file = Path(fr"{file_path}")
         df = pd.read_excel(search_file, header=1)
-        print(df)
+        return df
+
+    def read_header(self, file_path):
+        return self.read_bom(file_path).columns
 
 
