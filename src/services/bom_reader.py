@@ -19,6 +19,16 @@ class BomReader:
         return df
 
     def read_header(self, file_path):
-        return self.read_bom(file_path).columns
+        df = self.read_bom(file_path)
+        headers = [
+            str(col).strip()
+            for col in df.columns
+            if not str(col).startswith("Unnamed")
+        ]
+        return headers
+    def read_bom(self, file_path):
+        search_file = Path(fr"{file_path}")
+        df = pd.read_excel(search_file, header=1)
+        return df.to_dict(orient='records')
 
 

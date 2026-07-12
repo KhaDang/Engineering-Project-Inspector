@@ -12,7 +12,7 @@ from ui.tabs.tab_compare_two_files import FileToFile
 # Initialize main application
 app = tb.Window(themename="superhero")
 app.title("Engineering File Manager")
-app.geometry("800x600")
+app.geometry("1000x800")
 
 # Create the Notebook widget
 notebook = tb.Notebook(app, bootstyle="primary")

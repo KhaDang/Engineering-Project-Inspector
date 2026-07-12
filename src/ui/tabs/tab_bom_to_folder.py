@@ -1,7 +1,4 @@
-import pathlib
-from tkinter import filedialog
-from tkinter.filedialog import askdirectory
-from ttkbootstrap import utility
+
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 # Import UI
@@ -10,18 +7,19 @@ from ui.components.path_selector import BrowseType
 from ui.components.report_table import ReportTable
 from ui.components.type_seletor import TypeSelector
 from ui.components.columns_selector import ColumnsSelector
-
+from ui.components.progress_message import ProgressMessage
 
 # Import Services
 from services.folder_scanner import FolderScanner
-from services.bom_scanner import BomReader
+from services.bom_reader import BomReader
+from services.comparison_service import ComparisonService
 
 
 class BomToFolder(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=20)
         # Instance for FolderScanner
-        self.scanner = FolderScanner()
+        self.folder_scanner = FolderScanner()
         self.bom_reader = BomReader()
 
 
@@ -38,25 +36,16 @@ class BomToFolder(ttk.Frame):
             on_path_changed=self.on_bom_selected
         )
         self.bom_selector.pack(fill="x")
-        #-----------------------------------------
-        self.container = ttk.Frame(self.option_lf, padding=5)
 
-        # Add column selector widget
-        self.primary_selector = ColumnsSelector(
-            self.container,
-            label="BOM key"
+        # Ad comlumn selector widget
+        self.column_selector = ColumnsSelector(
+            self.option_lf,
+            p_label= "BOM key",
+            s_label= "Secondary key"
         )
-        self.primary_selector.grid(row=0, column=0, padx=(0, 5), pady=1, sticky="w")
+        self.column_selector.pack(fill="x")
 
-        # Add second column selector widget
-        self.secondary_selector = ColumnsSelector(
-            self.container,
-            label="Secondary key"
-        )
-        self.primary_selector.grid(row=0, column=1, padx=(10, 5), pady=1, sticky="w")
 
-        self.container.pack(fill=BOTH, expand=YES)
-        #--------------------------------------------
         # Add path selector widget
         self.folder_selector = PathSelector(
             self.option_lf,
@@ -81,6 +70,7 @@ class BomToFolder(ttk.Frame):
             command=self.on_compare
         )
         trigger_button.pack(fill='x')
+        #------------------------------------
         # Add Result frame label
         result_frame_text = ""
         self.result_frame = ttk.Labelframe(self, text=result_frame_text, padding=15)
@@ -103,19 +93,31 @@ class BomToFolder(ttk.Frame):
         )
         self.report_table.pack(fill="both", expand=True)
 
-        # Add progress bar
-        self.progressbar = ttk.Progressbar(
-            master=self,
-            mode=INDETERMINATE,
-            bootstyle=(STRIPED, SUCCESS)
-        )
-        self.progressbar.pack(fill=X, expand=YES)
+        # ------------------------------------
+        # Add progress and message status
+        self.message_box = ProgressMessage(self, "Status")
+        self.message_box.pack(fill="x")
 
 
     def on_compare(self):
-        folder = self.folder_selector.get()
-        records = self.scanner.scan_folder(folder)
-        self.report_table.load_records(records)
+        bom_path = self.bom_selector.get()
+        folder_path = self.folder_selector.get()
+
+        bom_dic = self.bom_reader.read_bom_dic(bom_path)
+        print(bom_dic)
+        print("\n")
+
+        folder_dic = self.folder_scanner.scan_folder(folder_path)
+        print(folder_dic)
+
+
+        self.comparison = ComparisonService()
+        #results = self.comparison.compare(bom_dic, folder_dic)
+
+
+
+
+
 
         # for record in record.values():
         #     self.report_table.insert_row(
@@ -125,6 +127,6 @@ class BomToFolder(ttk.Frame):
 
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)
-        self.primary_selector.set(headers)
-        self.secondary_selector.set(headers)
-        print(headers)
+        self.column_selector.set_values(headers)
+        self.message_box.insert_message("Successfull add bom")
+
