@@ -1,6 +1,8 @@
 
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+
+
 # Import UI
 from ui.components.path_selector import PathSelector
 from ui.components.path_selector import BrowseType
@@ -13,7 +15,7 @@ from ui.components.progress_message import ProgressMessage
 from services.folder_scanner import FolderScanner
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
-
+from models.comparsion_result import ComparisonStatus
 
 class BomToFolder(ttk.Frame):
     def __init__(self, parent):
@@ -103,26 +105,19 @@ class BomToFolder(ttk.Frame):
         bom_path = self.bom_selector.get()
         folder_path = self.folder_selector.get()
 
-        bom_dic = self.bom_reader.read_bom_dic(bom_path)
-        print(bom_dic)
-        print("\n")
-
+        combo_values = (self.column_selector.get())
+        bom_dic = self.bom_reader.read_bom(bom_path,combo_values)
         folder_dic = self.folder_scanner.scan_folder(folder_path)
-        print(folder_dic)
 
+        # Instance of ComparisonService
+        comparison = ComparisonService()
 
-        self.comparison = ComparisonService()
-        #results = self.comparison.compare(bom_dic, folder_dic)
+        comparison_results = ComparisonService().compare(bom_dic, folder_dic)
+        # Filter the results _ exclude the LEFT_ONLY
+        filtered_comparison_results = comparison.filter_results(comparison_results, {ComparisonStatus.LEFT_ONLY} )
 
-
-
-
-
-
-        # for record in record.values():
-        #     self.report_table.insert_row(
-        #         record.to_table_row()
-        #     )
+        # update report table
+        self.report_table.load_records(filtered_comparison_results)
 
 
     def on_bom_selected(self, bom_path):

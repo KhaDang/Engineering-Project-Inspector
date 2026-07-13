@@ -1,6 +1,4 @@
-# import os
-# import tkinter as tk
-# from tkinter import filedialog
+
 import ttkbootstrap as ttk
 
 class ReportTable(ttk.Frame):
@@ -39,7 +37,8 @@ class ReportTable(ttk.Frame):
 
     def load_records(self, records):
         self.clear()
-        for record in records.values():
+
+        for record in records:
             self.insert_row(
                 record.to_table_row()
             )

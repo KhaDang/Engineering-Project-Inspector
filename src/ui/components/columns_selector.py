@@ -81,3 +81,11 @@ class ColumnsSelector(ttk.Frame):
 
     def get_revision_column(self):
         return self.revision_var.get()
+
+    def get(self):
+        values = {
+            "bom_key": self.p_combo_box.get(),
+            "secondary_key": self.s_combo_box.get()
+
+        }
+        return values

@@ -19,7 +19,6 @@ class FolderScanner:
         # (Much faster than searching repeatedly)
         # -----------------------------
 
-        print("Indexing files...")
         file_index = defaultdict(lambda: defaultdict(list))
         for root, dirs, files in os.walk(search_folder):
             for file in files:
@@ -29,8 +28,6 @@ class FolderScanner:
                     file_index[name][ext].append(
                         os.path.join(root, file)
                     )
-        print(f"{len(file_index)} unique drawing names.")
-
         records = {}
         for drawing_number, extensions in file_index.items():
             record = DrawingRecord (drawing_number = drawing_number)
