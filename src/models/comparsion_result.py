@@ -9,6 +9,17 @@ class ComparisonStatus(Enum):
     RIGHT_ONLY = 'Missing in right'
 
 @dataclass
+class ComparisonSummary:
+
+    indexed_files: int
+    bom_rows: int
+    matches: int
+    missing_left: int
+    missing_right: int
+    duplicates: int
+
+
+@dataclass
 class ComparisonResult:
     drawing_number: str
     left_record: DrawingRecord | None

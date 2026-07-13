@@ -1,6 +1,9 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.widgets.scrolled import ScrolledText
 from ttkbootstrap.constants import *
+# Module use for calling date time
+from datetime import datetime, date
+
 
 class ProgressMessage(ttk.Frame):
     """
@@ -43,9 +46,30 @@ class ProgressMessage(ttk.Frame):
         )
         self.console.pack(fill="both", expand=NO)
         self.console.text.insert("end", "Sytem initialized...\n")
-        self.console.text.config(height=4)
+        self.console.text.config(height=6)
 
-    def insert_message(self, message):
-        self.console.text.insert("end", message+"\n")
+
+    def clear(self):
+        ...
+
+    def info(self, message):
+
+        self.console.text.insert("end", message + "\n")
         self.console.text.see("end")
 
+    def warning(self, message):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        self.console.text.insert("end", f"{timestamp}: {message} \n")
+        self.console.text.see("end")
+
+    def error(self, message):
+        ...
+
+    def start(self):
+        ...
+
+    def stop(self):
+        ...
+
+    def set_progress(self, value, maximum):
+        ...

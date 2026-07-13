@@ -1,7 +1,5 @@
-
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-
 
 # Import UI
 from ui.components.path_selector import PathSelector
@@ -17,13 +15,19 @@ from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
 from models.comparsion_result import ComparisonStatus
 
+
 class BomToFolder(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=20)
+
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
+
+        # Instance for BomReader
         self.bom_reader = BomReader()
 
+        # Instance of ComparisonService
+        self.comparison = ComparisonService()
 
         # header and labelframe option container
         option_text = "Read the BOM file then compare to the name of existing files that stored in Project Folder"
@@ -107,14 +111,31 @@ class BomToFolder(ttk.Frame):
 
         combo_values = (self.column_selector.get())
         bom_dic = self.bom_reader.read_bom(bom_path,combo_values)
+        # Update message box rows found
+        self.message_box.info(f"Rows found: {len(bom_dic)}")
+
         folder_dic = self.folder_scanner.scan_folder(folder_path)
+        # Update message box files found
+        self.message_box.info("Files found")
+        part, drawing, assembly, duplicates = self.folder_scanner.count_file_types(folder_dic)
 
-        # Instance of ComparisonService
-        comparison = ComparisonService()
+        self.message_box.info(f"SLDPRT : {part}")
+        self.message_box.info(f"SLDDRW : {drawing}")
+        self.message_box.info(f"SLDASM : {assembly}")
+        self.message_box.info(f"Duplicates : {duplicates}")
 
-        comparison_results = ComparisonService().compare(bom_dic, folder_dic)
+        self.message_box.warning("Comparing...")
+        comparison_results = self.comparison.compare(bom_dic, folder_dic)
+        self.message_box.warning("Done.")
+        matches = len(self.comparison.filter_results(
+            comparison_results,
+            {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
+            )
+        )
+        self.message_box.info(f"Matches: {matches}")
+
         # Filter the results _ exclude the LEFT_ONLY
-        filtered_comparison_results = comparison.filter_results(comparison_results, {ComparisonStatus.LEFT_ONLY} )
+        filtered_comparison_results = self.comparison.filter_results(comparison_results, {ComparisonStatus.LEFT_ONLY} )
 
         # update report table
         self.report_table.load_records(filtered_comparison_results)
@@ -123,5 +144,5 @@ class BomToFolder(ttk.Frame):
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)
         self.column_selector.set_values(headers)
-        self.message_box.insert_message("Successfull add bom")
+        self.message_box.warning("✓ BOM loaded ")
 

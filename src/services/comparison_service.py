@@ -4,7 +4,8 @@ from models.comparsion_result import ComparisonStatus
 
 
 class ComparisonService:
-
+    def __init__(self):
+        ...
     def compare(
         self,
         left_set: dict[str, DrawingRecord],

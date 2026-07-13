@@ -1,7 +1,4 @@
-import os
-import shutil
 import pandas as pd
-from collections import defaultdict
 from pathlib import Path
 import openpyxl
 
@@ -31,11 +28,14 @@ class BomReader:
              file_path: str,
              col_values: {},
          ) -> dict[str,DrawingRecord]:
+
         # Read the excel file and store it into data frame
         bom_file = Path(fr"{file_path}")
         df = pd.read_excel(bom_file, header=1)
+
         # Create empty dict to store result
         records: dict[str, DrawingRecord] = {}
+
         # loop through the data frame to store data into dict: records
         for _, row in df.iterrows():
             # Check for missing values of drawing col

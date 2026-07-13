@@ -1,6 +1,4 @@
 import os
-import shutil
-import pandas as pd
 from collections import defaultdict
 from pathlib import Path
 
@@ -52,3 +50,32 @@ class FolderScanner:
 
             records[drawing_number] = record
         return records
+
+    def count_file_types(self, records):
+
+        part_count = 0
+        drawing_count = 0
+        assembly_count = 0
+        duplicate_count = 0
+
+        for record in records.values():
+
+            if record.part_path:
+                part_count += 1
+
+            if record.drawing_path:
+                drawing_count += 1
+
+            if record.assembly_path:
+                assembly_count += 1
+
+            duplicate_count += len(record.part_duplicates)
+            duplicate_count += len(record.drawing_duplicates)
+            duplicate_count += len(record.assembly_duplicates)
+
+        return (
+            part_count,
+            drawing_count,
+            assembly_count,
+            duplicate_count
+        )
