@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.widgets.scrolled import ScrolledText
 from ttkbootstrap.constants import *
 # Module use for calling date time
-from datetime import datetime, date
+from datetime import datetime
 
 
 class ProgressMessage(ttk.Frame):
@@ -21,7 +21,7 @@ class ProgressMessage(ttk.Frame):
         # Add progress bar
         self.progressbar = ttk.Progressbar(
             master=self,
-            mode=INDETERMINATE,
+            mode=DETERMINATE,
             bootstyle=(STRIPED, SUCCESS)
         )
         self.progressbar.pack(fill=X, expand=YES)
@@ -62,14 +62,23 @@ class ProgressMessage(ttk.Frame):
         self.console.text.insert("end", f"{timestamp}: {message} \n")
         self.console.text.see("end")
 
+
+
     def error(self, message):
         ...
 
-    def start(self):
-        ...
 
-    def stop(self):
-        ...
+    # Methods for progress bar
 
-    def set_progress(self, value, maximum):
-        ...
+    def start_progress(self, maximum):
+
+        self.progressbar["maximum"] = maximum
+        self.progressbar["value"] = 0
+
+    def update_progress(self, value):
+
+        self.progressbar["value"] = value
+
+    def finish_progress(self):
+
+        self.progressbar["value"] = self.progressbar["maximum"]

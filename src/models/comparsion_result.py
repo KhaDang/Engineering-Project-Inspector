@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-
 from models.drawing_record import DrawingRecord
 
 from enum import Enum

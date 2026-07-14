@@ -51,31 +51,36 @@ class FolderScanner:
             records[drawing_number] = record
         return records
 
-    def count_file_types(self, records):
 
-        part_count = 0
-        drawing_count = 0
-        assembly_count = 0
-        duplicate_count = 0
+from dataclasses import dataclass
 
-        for record in records.values():
+@dataclass
+class FolderStatistics:
 
-            if record.part_path:
-                part_count += 1
+    part_count: int = 0
+    drawing_count: int = 0
+    assembly_count: int = 0
+    duplicate_count: int = 0
+    drawing_records: int = 0
 
-            if record.drawing_path:
-                drawing_count += 1
+def count_file_types(self, records) -> FolderStatistics:
 
-            if record.assembly_path:
-                assembly_count += 1
+    stats = FolderStatistics()
+    stats.drawing_records = len(records)
 
-            duplicate_count += len(record.part_duplicates)
-            duplicate_count += len(record.drawing_duplicates)
-            duplicate_count += len(record.assembly_duplicates)
+    for record in records.values():
 
-        return (
-            part_count,
-            drawing_count,
-            assembly_count,
-            duplicate_count
-        )
+        if record.part_path:
+            stats.part_count += 1
+
+        if record.drawing_path:
+            stats.drawing_count += 1
+
+        if record.assembly_path:
+            stats.assembly_count += 1
+
+        stats.duplicate_count += len(record.part_duplicates)
+        stats.duplicate_count += len(record.drawing_duplicates)
+        stats.duplicate_count += len(record.assembly_duplicates)
+
+    return (stats)

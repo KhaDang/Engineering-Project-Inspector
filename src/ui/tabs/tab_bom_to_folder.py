@@ -10,11 +10,13 @@ from ui.components.columns_selector import ColumnsSelector
 from ui.components.progress_message import ProgressMessage
 
 # Import Services
-from services.folder_scanner import FolderScanner
+from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
 from models.comparsion_result import ComparisonStatus
 
+# Import datetime
+from datetime import datetime
 
 class BomToFolder(ttk.Frame):
     def __init__(self, parent):
@@ -101,39 +103,46 @@ class BomToFolder(ttk.Frame):
 
         # ------------------------------------
         # Add progress and message status
-        self.message_box = ProgressMessage(self, "Status")
-        self.message_box.pack(fill="x")
+        self.progress_message = ProgressMessage(self, "Status")
+        self.progress_message.pack(fill="x")
 
 
     def on_compare(self):
+        t1 = datetime.now()
+        self.progress_message.start()
         bom_path = self.bom_selector.get()
         folder_path = self.folder_selector.get()
 
         combo_values = (self.column_selector.get())
         bom_dic = self.bom_reader.read_bom(bom_path,combo_values)
         # Update message box rows found
-        self.message_box.info(f"Rows found: {len(bom_dic)}")
+        self.progress_message.info(f"Rows found: {len(bom_dic)}")
 
         folder_dic = self.folder_scanner.scan_folder(folder_path)
         # Update message box files found
-        self.message_box.info("Files found")
-        part, drawing, assembly, duplicates = self.folder_scanner.count_file_types(folder_dic)
+        self.progress_message.info("Files found")
+        stats = count_file_types(self,folder_dic)
+        self.progress_message.info(f"Drawing records: {stats.drawing_records}")
+        self.progress_message.info(f"SLDPRT : {stats.part_count}")
+        self.progress_message.info(f"SLDDRW : {stats.drawing_count}")
+        self.progress_message.info(f"SLDASM : {stats.assembly_count}")
+        self.progress_message.info(f"Duplicates : {stats.duplicate_count}")
 
-        self.message_box.info(f"SLDPRT : {part}")
-        self.message_box.info(f"SLDDRW : {drawing}")
-        self.message_box.info(f"SLDASM : {assembly}")
-        self.message_box.info(f"Duplicates : {duplicates}")
-
-        self.message_box.warning("Comparing...")
+        self.progress_message.warning("Comparing...")
         comparison_results = self.comparison.compare(bom_dic, folder_dic)
-        self.message_box.warning("Done.")
         matches = len(self.comparison.filter_results(
             comparison_results,
             {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
             )
         )
-        self.message_box.info(f"Matches: {matches}")
+        self.progress_message.warning(f"Done. Total matches: {matches}")
+        t2 = datetime.now()
 
+        # Update progress bar
+        self.progress_message.set_progress(value=200, maximum=200)
+
+
+        self.progress_message.warning(f"Finished in: {(t2 - t1).total_seconds()} sec")
         # Filter the results _ exclude the LEFT_ONLY
         filtered_comparison_results = self.comparison.filter_results(comparison_results, {ComparisonStatus.LEFT_ONLY} )
 
@@ -144,5 +153,5 @@ class BomToFolder(ttk.Frame):
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)
         self.column_selector.set_values(headers)
-        self.message_box.warning("✓ BOM loaded ")
+        self.progress_message.warning("✓ BOM loaded ")
 
