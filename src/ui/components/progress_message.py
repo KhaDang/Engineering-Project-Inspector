@@ -30,8 +30,6 @@ class ProgressMessage(ttk.Frame):
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=NO, anchor=N)
 
-
-
         title = ttk.Label(
             self.option_lf,
             text=self.label,
@@ -73,7 +71,7 @@ class ProgressMessage(ttk.Frame):
     def start_progress(self, maximum):
 
         self.progressbar["maximum"] = maximum
-        self.progressbar["value"] = 0
+        self.progressbar["value"] = 10
 
     def update_progress(self, value):
 

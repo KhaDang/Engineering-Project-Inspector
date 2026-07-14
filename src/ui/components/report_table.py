@@ -8,8 +8,8 @@ class ReportTable(ttk.Frame):
         self.tree = ttk.Treeview(self, columns=columns, show='headings')
         # Add headings for Treeview table
         for col in columns:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, width=120)
+            self.tree.heading(col, text=col, anchor ='w')
+            self.tree.column(col, width=120, anchor='w')
 
         # Add vertical scrollbar to the right side of tree
         self.scrollbar = ttk.Scrollbar(

@@ -9,7 +9,10 @@ class FolderScanner:
 
     def __init__(self):
         self.folder_path: str
-    def scan_folder(self, folder_path) -> dict[str, DrawingRecord]:
+    def scan_folder(
+            self,
+            folder_path,
+            ) -> dict[str, DrawingRecord]:
         search_folder = Path(fr"{folder_path}")
 
         # -----------------------------
@@ -18,6 +21,7 @@ class FolderScanner:
         # -----------------------------
 
         file_index = defaultdict(lambda: defaultdict(list))
+
         for root, dirs, files in os.walk(search_folder):
             for file in files:
                 name, ext = os.path.splitext(file)
@@ -26,6 +30,7 @@ class FolderScanner:
                     file_index[name][ext].append(
                         os.path.join(root, file)
                     )
+
         records = {}
         for drawing_number, extensions in file_index.items():
             record = DrawingRecord (drawing_number = drawing_number)

@@ -9,11 +9,14 @@ class ComparisonService:
     def compare(
         self,
         left_set: dict[str, DrawingRecord],
-        right_set: dict[str, DrawingRecord]
+        right_set: dict[str, DrawingRecord],
+        progress_callback=None
     ):
         # Combine all sets to one set of data
         all_keys = set(left_set) | set (right_set)
+
         results = []
+        current = 0
         # Loop through all set and assign status, then store to results
         for drawing in sorted(all_keys):
             left = left_set.get(drawing)
@@ -28,7 +31,11 @@ class ComparisonService:
                     status=status
                 )
             )
-
+            # Send the current to update progressbar
+            current += 1
+            if progress_callback:
+                progress_callback(current)
+        print(f"total steps count in loop: {current}")
         return results
 
     def determine_status(

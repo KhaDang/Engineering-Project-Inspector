@@ -32,7 +32,7 @@ class BomToFolder(ttk.Frame):
         self.comparison = ComparisonService()
 
         # header and labelframe option container
-        option_text = "Read the BOM file then compare to the name of existing files that stored in Project Folder"
+        option_text = "Compare the BOM records to the Project Folder"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 
@@ -73,7 +73,7 @@ class BomToFolder(ttk.Frame):
         # Trigger button!! Test only
         trigger_button = ttk.Button(
             self,
-            text="Test!!",
+            text="Compare",
             width=10,
             command=self.on_compare
         )
@@ -83,7 +83,6 @@ class BomToFolder(ttk.Frame):
         result_frame_text = ""
         self.result_frame = ttk.Labelframe(self, text=result_frame_text, padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
-
 
 
         # Add Treeview that equals level to Labelframe.
@@ -109,18 +108,25 @@ class BomToFolder(ttk.Frame):
 
     def on_compare(self):
         t1 = datetime.now()
-        self.progress_message.start()
+        # Read BOM
         bom_path = self.bom_selector.get()
-        folder_path = self.folder_selector.get()
-
         combo_values = (self.column_selector.get())
-        bom_dic = self.bom_reader.read_bom(bom_path,combo_values)
-        # Update message box rows found
-        self.progress_message.info(f"Rows found: {len(bom_dic)}")
+        bom_dic = self.bom_reader.read_bom(bom_path, combo_values)
 
-        folder_dic = self.folder_scanner.scan_folder(folder_path)
-        # Update message box files found
-        self.progress_message.info("Files found")
+        # Update message box rows found
+        self.progress_message.info(f"BOM records: {len(bom_dic)}")
+
+        # Scan Folder
+        folder_path = self.folder_selector.get()
+        folder_dic = self.folder_scanner.scan_folder(
+            folder_path,
+        )
+
+        # Start progress bar
+        self.progress_message.start_progress(len(bom_dic|folder_dic))
+        print(len(bom_dic|folder_dic))
+
+        # Update message box files found, list all types of drawing records
         stats = count_file_types(self,folder_dic)
         self.progress_message.info(f"Drawing records: {stats.drawing_records}")
         self.progress_message.info(f"SLDPRT : {stats.part_count}")
@@ -129,19 +135,22 @@ class BomToFolder(ttk.Frame):
         self.progress_message.info(f"Duplicates : {stats.duplicate_count}")
 
         self.progress_message.warning("Comparing...")
-        comparison_results = self.comparison.compare(bom_dic, folder_dic)
+        comparison_results = self.comparison.compare(
+            bom_dic,
+            folder_dic,
+            progress_callback=self.progress_message.update_progress
+            # Callback function (argument were passed from class Folder Scanner)
+
+        )
         matches = len(self.comparison.filter_results(
             comparison_results,
             {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
             )
         )
-        self.progress_message.warning(f"Done. Total matches: {matches}")
+        self.progress_message.warning(f"Total matches: {matches}")
         t2 = datetime.now()
 
         # Update progress bar
-        self.progress_message.set_progress(value=200, maximum=200)
-
-
         self.progress_message.warning(f"Finished in: {(t2 - t1).total_seconds()} sec")
         # Filter the results _ exclude the LEFT_ONLY
         filtered_comparison_results = self.comparison.filter_results(comparison_results, {ComparisonStatus.LEFT_ONLY} )
