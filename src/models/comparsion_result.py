@@ -33,5 +33,6 @@ class ComparisonResult:
             "✓" if source and source.part_path else "X",
             "✓" if source and source.drawing_path else "X",
             "✓" if source and source.assembly_path else "X",
+            "✓" if source and source.pdf_path else "X",
             self.status.value,
         )

@@ -1,47 +1,40 @@
-import pathlib
-from tkinter import filedialog
-from tkinter.filedialog import askdirectory
-from ttkbootstrap import utility
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
-from ui.components.path_selector import PathSelector
-from ui.components.path_selector import BrowseType
-from ui.components.report_table import ReportTable
-from ui.components.type_seletor import TypeSelector
+from views.path_selector import PathSelector
+from views.path_selector import BrowseType
+from views.report_table import ReportTable
+from views.type_seletor import TypeSelector
 
-
-class FileToFile(ttk.Frame):
+class FolderToBOM(ttk.Frame):
     def __init__(self, parent):
-
         super().__init__(parent, padding=20)
 
         # header and labelframe option container
-        option_text = "Compare Partlist stored in 2 separated files"
+        option_text = "Scan the Project Folder then compare to BOM"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 
-        # Add file selector widget at the first row
-        self.file1_selector = PathSelector(
+        # Add path selector widget at the first row
+        self.file_selector = PathSelector(
             self.option_lf,
-            label="BOM 1",
-            browse_type= BrowseType.FILE
+            label="Project Folder",
+            browse_type=BrowseType.FOLDER
         )
-        self.file1_selector.pack(fill="x")
+        self.file_selector.pack(fill="x")
 
-        # Add path selector widget at the second row
-        self.file2_selector = PathSelector(
+        # Add file selector widget at the second row
+        self.bom_selector = PathSelector(
             self.option_lf,
-            label="BOM 2",
+            label="BOM file",
             browse_type=BrowseType.FILE
         )
-        self.file2_selector.pack(fill="x")
+        self.bom_selector.pack(fill="x")
 
         # Add type selector widget
         self.type_selector = TypeSelector(
             self.option_lf,
             label='Type',
-
         )
         self.type_selector.pack(fill="x")
 

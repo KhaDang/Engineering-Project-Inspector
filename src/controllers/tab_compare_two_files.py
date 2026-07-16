@@ -1,46 +1,43 @@
-import pathlib
-from tkinter import filedialog
-from tkinter.filedialog import askdirectory
-from ttkbootstrap import utility
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
-from ui.components.path_selector import PathSelector
-from ui.components.path_selector import BrowseType
-from ui.components.report_table import ReportTable
-from ui.components.type_seletor import TypeSelector
+from views.path_selector import PathSelector
+from views.path_selector import BrowseType
+from views.report_table import ReportTable
+from views.type_seletor import TypeSelector
 
 
-class FolderToFolder(ttk.Frame):
+class FileToFile(ttk.Frame):
     def __init__(self, parent):
 
         super().__init__(parent, padding=20)
 
         # header and labelframe option container
-        option_text = "Scan 2 Project Folders and compare their file names"
+        option_text = "Compare Partlist stored in 2 separated files"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 
-        # Add path selector widget at the first row for directory 1
-        self.path1_selector = PathSelector(
+        # Add file selector widget at the first row
+        self.file1_selector = PathSelector(
             self.option_lf,
-            label="W. Directory 1",
-            browse_type=BrowseType.FOLDER
+            label="BOM 1",
+            browse_type= BrowseType.FILE
         )
-        self.path1_selector.pack(fill="x")
+        self.file1_selector.pack(fill="x")
 
-        # Add output folder widget at the third row
-        self.path2_selector = PathSelector(
+        # Add path selector widget at the second row
+        self.file2_selector = PathSelector(
             self.option_lf,
-            label="W.Directory 2",
-            browse_type=BrowseType.FOLDER
+            label="BOM 2",
+            browse_type=BrowseType.FILE
         )
-        self.path2_selector.pack(fill="x")
+        self.file2_selector.pack(fill="x")
 
         # Add type selector widget
         self.type_selector = TypeSelector(
             self.option_lf,
             label='Type',
+
         )
         self.type_selector.pack(fill="x")
 

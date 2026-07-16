@@ -1,13 +1,15 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+# Import Pandas temporarily
+import pandas as pd
 
 # Import UI
-from ui.components.path_selector import PathSelector
-from ui.components.path_selector import BrowseType
-from ui.components.report_table import ReportTable
-from ui.components.type_seletor import TypeSelector
-from ui.components.columns_selector import ColumnsSelector
-from ui.components.progress_message import ProgressMessage
+from views.path_selector import PathSelector
+from views.path_selector import BrowseType
+from views.report_table import ReportTable
+from views.type_seletor import TypeSelector
+from views.columns_selector import ColumnsSelector
+from views.progress_message import ProgressMessage
 
 # Import Services
 from services.folder_scanner import FolderScanner, count_file_types
@@ -91,6 +93,7 @@ class BomToFolder(ttk.Frame):
             "SLDPRT",
             "SLDDRW",
             "SLDASM",
+            "PDF",
             "Status"
         )
 
@@ -164,3 +167,17 @@ class BomToFolder(ttk.Frame):
         self.column_selector.set_values(headers)
         self.progress_message.warning("✓ BOM loaded ")
 
+
+    # Temporarily use, to relocate to Services,
+    def export_report(self):
+        # 1. Extract data values from the Treeview widget
+        row_data = [self.report_table.tree.item(child)["values"] for child in self.report_table.tree.get_children()]
+
+        # 2. Extract column headers from the Treeview widget
+        column_headers = self.report_table.tree["columns"]
+
+        # 3. Create the Pandas DataFrame
+        df = pd.DataFrame(row_data, columns=column_headers)
+
+        df.to_excel("exported_treeview.xlsx", index=False)
+        self.progress_message.info("Exported successfully!")
