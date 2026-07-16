@@ -26,7 +26,7 @@ class FolderScanner:
             for file in files:
                 name, ext = os.path.splitext(file)
                 ext = ext.lower()
-                if ext in [".sldprt", ".slddrw", ".sldasm"]:
+                if ext in [".sldprt", ".slddrw", ".sldasm", ".pdf"]:
                     file_index[name][ext].append(
                         os.path.join(root, file)
                     )
@@ -52,6 +52,11 @@ class FolderScanner:
                 record.assembly_path = paths[0]
                 if len(paths) > 1:
                     record.assembly_duplicates.extend(paths[1:])
+            if ".pdf" in extensions:
+                paths = extensions[".pdf"]
+                record.pdf_path = paths[0]
+                if len(paths) > 1:
+                    record.pdf_duplicates.extend(paths[1:])
 
             records[drawing_number] = record
         return records

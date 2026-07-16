@@ -1,3 +1,5 @@
+import pandas as pd
+
 from models.drawing_record import DrawingRecord
 from models.comparsion_result import ComparisonResult
 from models.comparsion_result import ComparisonStatus
@@ -36,6 +38,10 @@ class ComparisonService:
             if progress_callback:
                 progress_callback(current)
         print(f"total steps count in loop: {current}")
+
+        df = pd.DataFrame(results)
+        df.to_excel("exported_comparison.xlsx", index=False)
+
         return results
 
     def determine_status(
