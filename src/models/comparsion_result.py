@@ -4,8 +4,8 @@ from models.drawing_record import DrawingRecord
 from enum import Enum
 class ComparisonStatus(Enum):
     MATCH = 'Match'
-    LEFT_ONLY = 'Missing in left'
-    RIGHT_ONLY = 'Missing in right'
+    LEFT_ONLY = 'Missing in folder'
+    RIGHT_ONLY = 'Missing in Bom'
 
 @dataclass
 class ComparisonSummary:

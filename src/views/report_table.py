@@ -5,7 +5,7 @@ class ReportTable(ttk.Frame):
 
     def __init__(self, master, columns):
         super().__init__(master)
-        self.tree = ttk.Treeview(self, columns=columns, show='headings')
+        self.tree = ttk.Treeview(self, height=18, columns=columns, show='headings')
         # Add headings for Treeview table
         for col in columns:
             self.tree.heading(col, text=col, anchor ='w')
@@ -21,7 +21,7 @@ class ReportTable(ttk.Frame):
         self.tree.configure(yscrollcommand=self.scrollbar.set)
 
         # pack
-        self.tree.pack(side="left", expand=True, fill="both")
+        self.tree.pack(side="left", expand=True, fill="both", pady=5)
         self.scrollbar.pack(side="right", fill="y")
 
     def insert_row(self, values):

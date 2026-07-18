@@ -1,7 +1,5 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-# Import Pandas temporarily
-import pandas as pd
 
 # Import UI
 from views.path_selector import PathSelector
@@ -33,6 +31,9 @@ class BomToFolder(ttk.Frame):
         # Instance of ComparisonService
         self.comparison = ComparisonService()
 
+        # Comparison result
+        self.comparison_results = []
+
         # header and labelframe option container
         option_text = "Compare the BOM records to the Project Folder"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
@@ -47,7 +48,7 @@ class BomToFolder(ttk.Frame):
         )
         self.bom_selector.pack(fill="x")
 
-        # Ad comlumn selector widget
+        # Add comlumn selector widget
         self.column_selector = ColumnsSelector(
             self.option_lf,
             p_label= "BOM key",
@@ -64,15 +65,9 @@ class BomToFolder(ttk.Frame):
         )
         self.folder_selector.pack(fill="x")
 
-        # Add type selector widget
-        self.type_selector = TypeSelector(
-            self.option_lf,
-            label='Type',
 
-        )
-        self.type_selector.pack(fill="x")
 
-        # Trigger button!! Test only
+        # Trigger button!
         trigger_button = ttk.Button(
             self,
             text="Compare",
@@ -82,9 +77,19 @@ class BomToFolder(ttk.Frame):
         trigger_button.pack(fill='x')
         #------------------------------------
         # Add Result frame label
-        result_frame_text = ""
-        self.result_frame = ttk.Labelframe(self, text=result_frame_text, padding=15)
+        self.result_frame = ttk.Labelframe(self, text="", padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
+
+        # Add type selector widget
+        self.type_selector = TypeSelector(
+            self.result_frame,
+            label='Record based:',
+            on_update_table= self.update_report_table
+
+        )
+        self.type_selector.pack(fill="x")
+        # Confirm type selector is already created
+        self.type_selector.select_defaulf()
 
 
         # Add Treeview that equals level to Labelframe.
@@ -138,7 +143,7 @@ class BomToFolder(ttk.Frame):
         self.progress_message.info(f"Duplicates : {stats.duplicate_count}")
 
         self.progress_message.warning("Comparing...")
-        comparison_results = self.comparison.compare(
+        self.comparison_results = self.comparison.compare(
             bom_dic,
             folder_dic,
             progress_callback=self.progress_message.update_progress
@@ -146,7 +151,7 @@ class BomToFolder(ttk.Frame):
 
         )
         matches = len(self.comparison.filter_results(
-            comparison_results,
+            self.comparison_results,
             {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
             )
         )
@@ -156,7 +161,8 @@ class BomToFolder(ttk.Frame):
         # Update progress bar
         self.progress_message.warning(f"Finished in: {(t2 - t1).total_seconds()} sec")
         # Filter the results _ exclude the LEFT_ONLY
-        filtered_comparison_results = self.comparison.filter_results(comparison_results, {ComparisonStatus.LEFT_ONLY} )
+        filtered_comparison_results = self.comparison.filter_results(self.comparison_results, {ComparisonStatus.RIGHT_ONLY} )
+        self.type_selector.bom_opt.invoke()
 
         # update report table
         self.report_table.load_records(filtered_comparison_results)
@@ -167,17 +173,47 @@ class BomToFolder(ttk.Frame):
         self.column_selector.set_values(headers)
         self.progress_message.warning("✓ BOM loaded ")
 
+    def on_clear(self):
+        self.report_table.clear()
+
+
 
     # Temporarily use, to relocate to Services,
     def export_report(self):
-        # 1. Extract data values from the Treeview widget
-        row_data = [self.report_table.tree.item(child)["values"] for child in self.report_table.tree.get_children()]
+        self.progress_message.warning("Exporting...")
+        self.comparison.create_report(self.comparison_results)
+        self.progress_message.warning("Export completed!")
 
-        # 2. Extract column headers from the Treeview widget
-        column_headers = self.report_table.tree["columns"]
+        # # 1. Extract data values from the Treeview widget
+        # row_data = [self.report_table.tree.item(child)["values"] for child in self.report_table.tree.get_children()]
+        #
+        # # 2. Extract column headers from the Treeview widget
+        # column_headers = self.report_table.tree["columns"]
+        #
+        # # 3. Create the Pandas DataFrame
+        # df = pd.DataFrame(row_data, columns=column_headers)
+        #
+        # df.to_excel("exported_treeview.xlsx", index=False)
+        # self.progress_message.info("Exported successfully!")
 
-        # 3. Create the Pandas DataFrame
-        df = pd.DataFrame(row_data, columns=column_headers)
+    def update_report_table(self):
+        selected_option = self.type_selector.selected_option.get()
+        if len(self.comparison_results) > 0:
+            if selected_option == "bom":
+                b_result = self.comparison.filter_results(self.comparison_results,{ComparisonStatus.RIGHT_ONLY})
+                self.report_table.load_records(b_result)
+            elif selected_option == "folder":
+                f_result = self.comparison.filter_results(self.comparison_results,{ComparisonStatus.LEFT_ONLY})
+                self.report_table.load_records(f_result)
+            else:
+                self.report_table.load_records(self.comparison_results)
+        else:
+            self.progress_message.warning("Comparison has not executed yet!")
+        ## Helpful debug
+        # print("----------------")
+        # print("update_base_record")
+        # print("self =", self)
+        # print("class =", self.__class__.__name__)
+        # print("attributes =", self.__dict__.keys())
 
-        df.to_excel("exported_treeview.xlsx", index=False)
-        self.progress_message.info("Exported successfully!")
+

@@ -4,7 +4,6 @@ from models.drawing_record import DrawingRecord
 from models.comparsion_result import ComparisonResult
 from models.comparsion_result import ComparisonStatus
 
-
 class ComparisonService:
     def __init__(self):
         ...
@@ -37,10 +36,6 @@ class ComparisonService:
             current += 1
             if progress_callback:
                 progress_callback(current)
-        print(f"total steps count in loop: {current}")
-
-        df = pd.DataFrame(results)
-        df.to_excel("exported_comparison.xlsx", index=False)
 
         return results
 
@@ -52,8 +47,8 @@ class ComparisonService:
         if left and right:
             return ComparisonStatus.MATCH
         if left:
-            return ComparisonStatus.RIGHT_ONLY
-        return ComparisonStatus.LEFT_ONLY
+            return ComparisonStatus.LEFT_ONLY
+        return ComparisonStatus.RIGHT_ONLY
 
     def filter_results(
             self,
@@ -64,6 +59,15 @@ class ComparisonService:
             r for r in results
             if r.status not in excluded
         ]
+
+    def create_report(self, results):
+        report = []
+        if len(results)>0:
+            for drawing in results:
+                report.append(drawing.to_table_row())
+
+        df = pd.DataFrame(report, columns=["Drawing", "SLDPRT", "SLDDRW", "SLDASM", "PDF", "STATUS"])
+        df.to_excel("exported_dataframe.xlsx", index=False)
 
 
 
