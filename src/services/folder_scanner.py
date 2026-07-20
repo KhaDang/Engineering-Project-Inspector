@@ -93,4 +93,4 @@ def count_file_types(self, records) -> FolderStatistics:
         stats.duplicate_count += len(record.drawing_duplicates)
         stats.duplicate_count += len(record.assembly_duplicates)
 
-    return (stats)
+    return stats

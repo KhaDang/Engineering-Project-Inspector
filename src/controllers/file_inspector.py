@@ -18,7 +18,7 @@ from models.comparsion_result import ComparisonStatus
 # Import datetime
 from datetime import datetime
 
-class BomToFolder(ttk.Frame):
+class FilesInspector(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=20)
 
@@ -70,7 +70,7 @@ class BomToFolder(ttk.Frame):
         # Trigger button!
         trigger_button = ttk.Button(
             self,
-            text="Compare",
+            text="Inspect Files",
             width=10,
             command=self.on_compare
         )
