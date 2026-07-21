@@ -4,11 +4,20 @@ from pathlib import Path
 
 #Import model drawing_record
 from models.drawing_record import DrawingRecord
+#Import model parsed_filename
+from models.parsed_filename import ParsedFileName
+#Import filenaem_parser
+from services.filename_parser import FileNameParser
 
 class FolderScanner:
 
     def __init__(self):
         self.folder_path: str
+
+        # Instance for filename_parser service
+        self.filename_parser = FileNameParser()
+
+
     def scan_folder(
             self,
             folder_path,
@@ -59,6 +68,23 @@ class FolderScanner:
                     record.pdf_duplicates.extend(paths[1:])
 
             records[drawing_number] = record
+        return records
+
+    def parse_filename(self, folder_path) -> dict[str, DrawingRecord]:
+
+        records = {}
+
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                # Assign to parser
+                parsed = self.filename_parser.parse(file)
+
+                record = records.setdefault(
+                    parsed.drawing_number,
+                    DrawingRecord(parsed.drawing_number)
+                )
+                record.pdf_revision = parsed.revision
+
         return records
 
 

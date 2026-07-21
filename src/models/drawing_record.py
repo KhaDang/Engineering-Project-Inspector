@@ -4,7 +4,10 @@ from dataclasses import dataclass, field
 class DrawingRecord:
 
     drawing_number: str
-    revision: str | None = None
+    bom_revision: str | None = None
+    pdf_revision: str | None = None
+
+
     part_path: str | None = None
     part_duplicates: list[str] = field(default_factory=list)
 

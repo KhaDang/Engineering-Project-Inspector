@@ -108,58 +108,12 @@ class RevisionsInspector(ttk.Frame):
         self.progress_message.pack(fill="x")
 
     def on_compare(self):
-        t1 = datetime.now()
-        # Read BOM
-        bom_path = self.bom_selector.get()
-        combo_values = (self.column_selector.get())
-        bom_dic = self.bom_reader.read_bom(bom_path, combo_values)
-
-        # Update message box rows found
-        self.progress_message.info(f"BOM records: {len(bom_dic)}")
-
         # Scan Folder
         folder_path = self.folder_selector.get()
-        folder_dic = self.folder_scanner.scan_folder(
+        folder_dic = self.folder_scanner.parse_filename(
             folder_path,
         )
-
-        # Start progress bar
-        self.progress_message.start_progress(len(bom_dic | folder_dic))
-        print(len(bom_dic | folder_dic))
-
-        # Update message box files found, list all types of drawing records
-        stats = count_file_types(self, folder_dic)
-        self.progress_message.info(f"Drawing records: {stats.drawing_records}")
-        self.progress_message.info(f"SLDPRT : {stats.part_count}")
-        self.progress_message.info(f"SLDDRW : {stats.drawing_count}")
-        self.progress_message.info(f"SLDASM : {stats.assembly_count}")
-        self.progress_message.info(f"Duplicates : {stats.duplicate_count}")
-
-        self.progress_message.warning("Comparing...")
-        self.comparison_results = self.comparison.compare(
-            bom_dic,
-            folder_dic,
-            progress_callback=self.progress_message.update_progress
-            # Callback function (argument were passed from class Folder Scanner)
-
-        )
-        matches = len(self.comparison.filter_results(
-            self.comparison_results,
-            {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
-        )
-        )
-        self.progress_message.warning(f"Total matches: {matches}")
-        t2 = datetime.now()
-
-        # Update progress bar
-        self.progress_message.warning(f"Finished in: {(t2 - t1).total_seconds()} sec")
-        # Filter the results _ exclude the LEFT_ONLY
-        filtered_comparison_results = self.comparison.filter_results(self.comparison_results,
-                                                                     {ComparisonStatus.RIGHT_ONLY})
-        self.type_selector.bom_opt.invoke()
-
-        # update report table
-        self.report_table.load_records(filtered_comparison_results)
+        print(folder_dic)
 
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)
