@@ -4,9 +4,8 @@ from pathlib import Path
 
 #Import model drawing_record
 from models.drawing_record import DrawingRecord
-#Import model parsed_filename
-from models.parsed_filename import ParsedFileName
-#Import filenaem_parser
+
+#Import filename_parser
 from services.filename_parser import FileNameParser
 
 class FolderScanner:
