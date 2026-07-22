@@ -113,7 +113,7 @@ class RevisionsInspector(ttk.Frame):
         folder_dic = self.folder_scanner.parse_filename(
             folder_path,
         )
-        print(folder_dic)
+        print(f"{len(folder_dic)} files scanned")
 
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)

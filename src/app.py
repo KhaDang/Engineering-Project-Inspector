@@ -4,7 +4,7 @@ from ttkbootstrap.constants import *
 # Import your custom controllers from separate files
 from controllers.file_inspector import FilesInspector
 from controllers.revision_inspector import RevisionsInspector
-# from controllers.tab_folder_to_folder import FolderToFolder
+from controllers.tab_folder_to_folder import FolderToFolder
 # from controllers.tab_compare_two_files import FileToFile
 
 
@@ -41,13 +41,13 @@ class EngineeringFileManagerApp:
         # Instantiate the tab objects (passing the notebook as the parent container)
         self.bom_to_folder_tab = FilesInspector(self.notebook)
         self.folder_to_bom_tab = RevisionsInspector(self.notebook)
-        # self.folder_to_folder_tab = FolderToFolder(self.notebook)
+        self.folder_to_folder_tab = FolderToFolder(self.notebook)
         # self.file_to_file_tab = FileToFile(self.notebook)
 
         # Link the modular tab objects to the notebook controllers
         self.notebook.add(self.bom_to_folder_tab, text="Files Inspector")
         self.notebook.add(self.folder_to_bom_tab, text="Revision Inspector")
-        # self.notebook.add(self.folder_to_folder_tab, text="Folder -> Folder")
+        self.notebook.add(self.folder_to_folder_tab, text="Folder -> Folder")
         # self.notebook.add(self.file_to_file_tab, text="Compare 2 files")
 
     def run(self):
