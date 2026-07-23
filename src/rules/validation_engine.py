@@ -1,4 +1,6 @@
-from rules.
+from rules.missing_record_rule import MissingRecordRule
+from rules.revision_rule import RevisionRule
+from rules.duplicate_rule import DuplicateRule
 
 class ValidationEngine:
 
@@ -8,11 +10,11 @@ class ValidationEngine:
 
             MissingRecordRule(),
 
-            FileExistenceRule(),
+            # FileExistenceRule(),
 
             RevisionRule(),
 
-            DuplicateRule(),
+            # DuplicateRule(),
 
         ]
 

@@ -1,12 +1,48 @@
 import pandas as pd
-
+# Import Models
 from models.drawing_record import DrawingRecord
 from models.comparsion_result import ComparisonResult
 from models.comparsion_result import ComparisonStatus
 
+# Import rules, validation engine
+from rules.validation_engine import ValidationEngine
+
 class ComparisonService:
     def __init__(self):
-        ...
+        self.validator = ValidationEngine()
+
+    def compare_validation(
+            self,
+            left_records,
+            right_records
+    ):
+
+        all_keys = set(left_records) | set(right_records)
+
+        results = []
+
+        for drawing in sorted(all_keys):
+            left = left_records.get(drawing)
+
+            right = right_records.get(drawing)
+
+            result = ComparisonResult(
+                drawing_number=drawing,
+                left_record=left,
+                right_record=right
+            )
+
+            self.validator.validate(
+                left,
+                right,
+                result
+            )
+
+            results.append(result)
+
+        return results
+
+
     def compare(
         self,
         left_set: dict[str, DrawingRecord],

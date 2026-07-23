@@ -143,29 +143,37 @@ class FilesInspector(ttk.Frame):
         self.progress_message.info(f"Duplicates : {stats.duplicate_count}")
 
         self.progress_message.warning("Comparing...")
-        self.comparison_results = self.comparison.compare(
+
+        self.comparison_results = self.comparison.compare_validation(
             bom_dic,
-            folder_dic,
-            progress_callback=self.progress_message.update_progress
-            # Callback function (argument were passed from class Folder Scanner)
+            folder_dic
 
         )
-        matches = len(self.comparison.filter_results(
-            self.comparison_results,
-            {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
-            )
-        )
-        self.progress_message.warning(f"Total matches: {matches}")
-        t2 = datetime.now()
+        self.report_table.load_records(self.comparison_results)
 
-        # Update progress bar
-        self.progress_message.warning(f"Finished in: {(t2 - t1).total_seconds()} sec")
-        # Filter the results _ exclude the LEFT_ONLY
-        filtered_comparison_results = self.comparison.filter_results(self.comparison_results, {ComparisonStatus.RIGHT_ONLY} )
-        self.type_selector.bom_opt.invoke()
-
-        # update report table
-        self.report_table.load_records(filtered_comparison_results)
+        # self.comparison_results = self.comparison.compare(
+        #     bom_dic,
+        #     folder_dic,
+        #     progress_callback=self.progress_message.update_progress
+        #     # Callback function (argument were passed from class Folder Scanner)
+        #
+        # )
+        # matches = len(self.comparison.filter_results(
+        #     self.comparison_results,
+        #     {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
+        #     )
+        # )
+        # self.progress_message.warning(f"Total matches: {matches}")
+        # t2 = datetime.now()
+        #
+        # # Update progress bar
+        # self.progress_message.warning(f"Finished in: {(t2 - t1).total_seconds()} sec")
+        # # Filter the results _ exclude the LEFT_ONLY
+        # filtered_comparison_results = self.comparison.filter_results(self.comparison_results, {ComparisonStatus.RIGHT_ONLY} )
+        # self.type_selector.bom_opt.invoke()
+        #
+        # # update report table
+        # self.report_table.load_records(filtered_comparison_results)
 
 
     def on_bom_selected(self, bom_path):

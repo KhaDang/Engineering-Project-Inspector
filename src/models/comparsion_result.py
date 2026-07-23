@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from models.drawing_record import DrawingRecord
 
 from enum import Enum
@@ -23,7 +23,10 @@ class ComparisonResult:
     drawing_number: str
     left_record: DrawingRecord | None
     right_record: DrawingRecord | None
-    status: ComparisonStatus
+
+    issues:list = field(default_factory=list)
+
+    # status: ComparisonStatus
 
     def to_table_row(self):
         source = self.right_record or self.left_record
@@ -34,5 +37,8 @@ class ComparisonResult:
             "✓" if source and source.drawing_path else "X",
             "✓" if source and source.assembly_path else "X",
             "✓" if source and source.pdf_path else "X",
-            self.status.value,
+            self.issues[-1],
         )
+
+    def add_issue(self, issue):
+        self.issues.append(issue)

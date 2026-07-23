@@ -1,4 +1,8 @@
 from rules.base_rule import BaseRule
+# Import model
+
+from models.comparison_issue import MissingInLeft, MissingInRight
+
 
 class MissingRecordRule(BaseRule):
 

@@ -1,4 +1,6 @@
 from rules.base_rule import BaseRule
+# Import from Models
+from models.comparison_issue import RevisionMismatch
 
 class RevisionRule(BaseRule):
 
@@ -15,5 +17,5 @@ class RevisionRule(BaseRule):
         if left.pdf_revision != right.pdf_revision:
 
             result.add_issue(
-                "Revision mismatch"
+                RevisionMismatch()
             )

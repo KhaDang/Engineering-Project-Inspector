@@ -47,7 +47,7 @@ class BomReader:
 
             record = DrawingRecord(
                 drawing_number = drawing_number,
-                revision= revision
+                bom_revision= revision
             )
             records[drawing_number] = record
         return records
