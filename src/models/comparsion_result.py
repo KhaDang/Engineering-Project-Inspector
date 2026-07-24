@@ -1,12 +1,6 @@
 from dataclasses import dataclass, field
 from models.drawing_record import DrawingRecord
 
-from enum import Enum
-class ComparisonStatus(Enum):
-    MATCH = 'Match'
-    LEFT_ONLY = 'Missing in folder'
-    RIGHT_ONLY = 'Missing in Bom'
-
 @dataclass
 class ComparisonSummary:
 
@@ -16,7 +10,6 @@ class ComparisonSummary:
     missing_left: int
     missing_right: int
     duplicates: int
-
 
 @dataclass
 class ComparisonResult:
@@ -37,8 +30,14 @@ class ComparisonResult:
             "✓" if source and source.drawing_path else "X",
             "✓" if source and source.assembly_path else "X",
             "✓" if source and source.pdf_path else "X",
-            self.issues[-1],
+            ', '.join(issue.message for issue in self.issues)
         )
 
     def add_issue(self, issue):
         self.issues.append(issue)
+
+    def has_issue(self, issue_type):
+        return any(
+            isinstance(issue, issue_type)
+            for issue in self.issues
+        )

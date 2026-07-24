@@ -1,7 +1,7 @@
 from rules.base_rule import BaseRule
 # Import model
 
-from models.comparison_issue import MissingInLeft, MissingInRight
+from models.comparison_issue import MissingInLeft, MissingInRight, Match
 
 
 class MissingRecordRule(BaseRule):
@@ -12,6 +12,9 @@ class MissingRecordRule(BaseRule):
         right,
         result
     ):
+
+        if left and right:
+            result.add_issue(Match())
 
         if left is None:
 

@@ -23,6 +23,11 @@ class MissingInRight(ComparisonIssue):
     def message(self):
         return "Missing in Right"
 
+class Match(ComparisonIssue):
+    @property
+    def message(self):
+        return "Matching" # Normally it is not an issue :)
+
 
 class RevisionMismatch(ComparisonIssue):
 

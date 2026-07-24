@@ -2,7 +2,6 @@ import pandas as pd
 # Import Models
 from models.drawing_record import DrawingRecord
 from models.comparsion_result import ComparisonResult
-from models.comparsion_result import ComparisonStatus
 
 # Import rules, validation engine
 from rules.validation_engine import ValidationEngine
@@ -75,21 +74,21 @@ class ComparisonService:
 
         return results
 
-    def determine_status(
-            self,
-            left: DrawingRecord | None,
-            right: DrawingRecord | None
-    ) -> ComparisonStatus:
-        if left and right:
-            return ComparisonStatus.MATCH
-        if left:
-            return ComparisonStatus.LEFT_ONLY
-        return ComparisonStatus.RIGHT_ONLY
+    # def determine_status(
+    #         self,
+    #         left: DrawingRecord | None,
+    #         right: DrawingRecord | None
+    # ) -> ComparisonStatus:
+    #     if left and right:
+    #         return ComparisonStatus.MATCH
+    #     if left:
+    #         return ComparisonStatus.LEFT_ONLY
+    #     return ComparisonStatus.RIGHT_ONLY
 
     def filter_results(
             self,
             results,
-            excluded: set[ComparisonStatus]
+            excluded: set[DrawingRecord]
     ):
         return [
             r for r in results
