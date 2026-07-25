@@ -34,7 +34,7 @@ class FolderScanner:
             for file in files:
                 name, ext = os.path.splitext(file)
                 ext = ext.lower()
-                if ext in [".sldprt", ".slddrw", ".sldasm", ".pdf"]:
+                if ext in [".sldprt", ".slddrw", ".sldasm"]:
                     file_index[name][ext].append(
                         os.path.join(root, file)
                     )
@@ -60,11 +60,7 @@ class FolderScanner:
                 record.assembly_path = paths[0]
                 if len(paths) > 1:
                     record.assembly_duplicates.extend(paths[1:])
-            if ".pdf" in extensions:
-                paths = extensions[".pdf"]
-                record.pdf_path = paths[0]
-                if len(paths) > 1:
-                    record.pdf_duplicates.extend(paths[1:])
+
 
             records[drawing_number] = record
         return records
@@ -75,14 +71,17 @@ class FolderScanner:
 
         for root, dirs, files in os.walk(folder_path):
             for file in files:
-                # Assign to parser
-                parsed = self.filename_parser.parse(file)
+                name, ext = os.path.splitext(file)
+                ext = ext.lower()
+                if ext in [".pdf"]:
+                    # Assign to parser
+                    parsed = self.filename_parser.parse(file)
 
-                record = records.setdefault(
-                    parsed.drawing_number,
-                    DrawingRecord(parsed.drawing_number)
-                )
-                record.pdf_revision = parsed.revision
+                    record = records.setdefault(
+                        parsed.drawing_number,
+                        DrawingRecord(parsed.drawing_number)
+                    )
+                    record.pdf_revision = parsed.revision
 
         return records
 
@@ -97,6 +96,7 @@ class FolderStatistics:
     assembly_count: int = 0
     duplicate_count: int = 0
     drawing_records: int = 0
+    pdf_count: int = 0
 
 def count_file_types(self, records) -> FolderStatistics:
 
@@ -113,6 +113,9 @@ def count_file_types(self, records) -> FolderStatistics:
 
         if record.assembly_path:
             stats.assembly_count += 1
+
+        if record.pdf_path:
+            stats.pdf_count += 1
 
         stats.duplicate_count += len(record.part_duplicates)
         stats.duplicate_count += len(record.drawing_duplicates)

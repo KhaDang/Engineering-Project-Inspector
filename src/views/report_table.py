@@ -42,3 +42,12 @@ class ReportTable(ttk.Frame):
             self.insert_row(
                 record.to_table_row()
             )
+
+    def load_records_rev(self, records):
+        self.clear()
+
+        for record in records:
+            self.insert_row(
+                record.to_table_row_rev()
+            )
+

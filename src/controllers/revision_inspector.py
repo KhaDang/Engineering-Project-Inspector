@@ -1,24 +1,39 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+
+from rules.validation_engine import ValidationEngine
 # Import UI
 from views.path_selector import PathSelector
 from views.path_selector import BrowseType
 from views.report_table import ReportTable
-from views.type_seletor import TypeSelector
+from views.type_selector import TypeSelector
 from views.columns_selector import ColumnsSelector
 from views.progress_message import ProgressMessage
 
+# Import Configurations
+from workflows.rev_inspector_config import RevInspectorConfig
 
 # Import Services
 from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
-from models.comparsion_result import ComparisonStatus
+
+#Import Rules for comparison
+from rules.missing_record_rule import MissingRecordRule
+from rules.revision_rule import RevisionRule
+
+
+# Import Datetime
+from datetime import datetime
+
 
 
 class RevisionsInspector(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=20)
+
+        # Instance for Configurations
+        self.config = RevInspectorConfig()
 
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
@@ -27,10 +42,11 @@ class RevisionsInspector(ttk.Frame):
         self.bom_reader = BomReader()
 
         # Instance of ComparisonService
-        self.comparison = ComparisonService()
-
-        # Comparison result
-        self.comparison_results = []
+        self.comparison = ComparisonService(
+            validator_engines= ValidationEngine(
+                rules= self.config.RULES
+            )
+        )
 
 
         # header and labelframe option container
@@ -48,11 +64,10 @@ class RevisionsInspector(ttk.Frame):
         )
         self.bom_selector.pack(fill="x")
 
-        # Add comlumn selector widget
+        # Add column selector widget
         self.column_selector = ColumnsSelector(
             self.option_lf,
-            p_label= "BOM key",
-            s_label= "Secondary key"
+            columns=self.config.KEY_COLUMNS
         )
         self.column_selector.pack(fill="x")
 
@@ -68,7 +83,7 @@ class RevisionsInspector(ttk.Frame):
         # Trigger button!
         trigger_button = ttk.Button(
             self,
-            text="Inspect Files",
+            text="Inspect Revisions",
             width=10,
             command=self.on_compare
         )
@@ -79,26 +94,20 @@ class RevisionsInspector(ttk.Frame):
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
 
         # Add type selector widget
-        self.type_selector = TypeSelector(
-            self.result_frame,
-            label='Record based:',
-            on_update_table= self.update_report_table
-
-        )
-        self.type_selector.pack(fill="x")
+        # self.type_selector = TypeSelector(
+        #     self.result_frame,
+        #     label='Record based:',
+        #     on_update_table= self.update_report_table
+        #
+        # )
+        # self.type_selector.pack(fill="x")
         # Confirm type selector is already created
-        self.type_selector.select_defaulf()
+        # self.type_selector.select_defaulf()
         # Add Treeview that equals level to Labelframe.
-        columns = (
-            "Drawing Number",
-            "Bom_rev",
-            "Folder_rev",
-            "Status"
-        )
 
         self.report_table = ReportTable(
             self.result_frame,
-            columns=columns
+            columns=self.config.REPORT_TABLE_COLUMNS
         )
         self.report_table.pack(fill="both", expand=True)
 
@@ -108,12 +117,29 @@ class RevisionsInspector(ttk.Frame):
         self.progress_message.pack(fill="x")
 
     def on_compare(self):
+
+        t1 = datetime.now()
+        # Read BOM
+        bom_path = self.bom_selector.get()
+        selected_columns = self.column_selector.get()
+        bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
+
+
         # Scan Folder
         folder_path = self.folder_selector.get()
         folder_dic = self.folder_scanner.parse_filename(
             folder_path,
         )
-        print(f"{len(folder_dic)} files scanned")
+
+        print(folder_dic)
+
+        self.comparison_results = self.comparison.compare(
+            bom_dic,
+            folder_dic
+        )
+
+        self.report_table.load_records_rev(self.comparison_results)
+
 
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)

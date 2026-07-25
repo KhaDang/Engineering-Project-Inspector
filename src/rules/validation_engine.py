@@ -1,22 +1,12 @@
 from rules.missing_record_rule import MissingRecordRule
 from rules.revision_rule import RevisionRule
-from rules.duplicate_rule import DuplicateRule
+# from rules.duplicate_rule import DuplicateRule
 
 class ValidationEngine:
 
-    def __init__(self):
+    def __init__(self, rules):
 
-        self.rules = [
-
-            MissingRecordRule(),
-
-            # FileExistenceRule(),
-
-            RevisionRule(),
-
-            # DuplicateRule(),
-
-        ]
+        self.rules = rules
 
     def validate(
             self,

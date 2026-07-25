@@ -23,10 +23,10 @@ class MissingInRight(ComparisonIssue):
     def message(self):
         return "Missing in Right"
 
-class Match(ComparisonIssue):
+class FileMatching(ComparisonIssue):
     @property
     def message(self):
-        return "Matching" # Normally it is not an issue :)
+        return "Files Matching" # Normally it is not an issue :)
 
 
 class RevisionMismatch(ComparisonIssue):
@@ -34,3 +34,9 @@ class RevisionMismatch(ComparisonIssue):
     @property
     def message(self):
         return "Revision mismatch"
+
+class RevisionMatching(ComparisonIssue):
+
+    @property
+    def message(self):
+        return "Revision matching"

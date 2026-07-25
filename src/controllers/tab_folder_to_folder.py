@@ -4,12 +4,12 @@ from ttkbootstrap.constants import *
 from views.path_selector import PathSelector
 from views.path_selector import BrowseType
 from views.report_table import ReportTable
-from views.type_seletor import TypeSelector
+from views.type_selector import TypeSelector
 
 # Import Services
 from services.folder_scanner import FolderScanner, count_file_types
 from services.comparison_service import ComparisonService
-from models.comparsion_result import ComparisonStatus
+# from models.comparsion_result import ComparisonStatus
 
 
 # Import datetime
@@ -23,11 +23,11 @@ class FolderToFolder(ttk.Frame):
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
 
-        # Instance of ComparisonService
-        self.comparison = ComparisonService()
-
-        # Comparison result
-        self.comparison_results = []
+        # # Instance of ComparisonService
+        # self.comparison = ComparisonService()
+        #
+        # # Comparison result
+        # self.comparison_results = []
 
         # header and labelframe option container
         option_text = "Scan 2 Project Folders and compare their file names"
@@ -51,12 +51,12 @@ class FolderToFolder(ttk.Frame):
         self.right_folder_selector.pack(fill="x")
 
         # Add type selector widget
-        self.type_selector = TypeSelector(
-            self.option_lf,
-            label='Type',
-            on_update_table=None
-        )
-        self.type_selector.pack(fill="x")
+        # self.type_selector = TypeSelector(
+        #     self.option_lf,
+        #     label='Type',
+        #     on_update_table=None
+        # )
+        # self.type_selector.pack(fill="x")
 
         # Trigger button!
         trigger_button = ttk.Button(

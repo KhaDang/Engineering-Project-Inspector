@@ -29,7 +29,6 @@ class ComparisonResult:
             "✓" if source and source.part_path else "X",
             "✓" if source and source.drawing_path else "X",
             "✓" if source and source.assembly_path else "X",
-            "✓" if source and source.pdf_path else "X",
             ', '.join(issue.message for issue in self.issues)
         )
 
@@ -40,4 +39,15 @@ class ComparisonResult:
         return any(
             isinstance(issue, issue_type)
             for issue in self.issues
+        )
+
+    def to_table_row_rev(self):
+
+        source = self.left_record or self.right_record
+
+        return (
+            self.drawing_number,
+            source.bom_revision if source and self.left_record else "X",
+            source.pdf_revision if source and self.right_record else "X",
+            ', '.join(issue.message for issue in self.issues)
         )

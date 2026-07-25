@@ -5,15 +5,24 @@ from ttkbootstrap.constants import *
 from views.path_selector import PathSelector
 from views.path_selector import BrowseType
 from views.report_table import ReportTable
-from views.type_seletor import TypeSelector
+from views.type_selector import TypeSelector
 from views.columns_selector import ColumnsSelector
 from views.progress_message import ProgressMessage
+
+# Import Configurations
+from workflows.file_inspector_configs import FileInspectorConfig
 
 # Import Services
 from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
-from models.comparsion_result import ComparisonStatus
+
+# Import issues
+from models.comparison_issue import MissingInLeft, MissingInRight, FileMatching
+
+# Import Rules/ValidationEngine
+from rules.validation_engine import ValidationEngine
+from rules.missing_record_rule import MissingRecordRule
 
 # Import datetime
 from datetime import datetime
@@ -22,6 +31,9 @@ class FilesInspector(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=20)
 
+        # Instance for Workflow configuration
+        self.config = FileInspectorConfig()
+
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
 
@@ -29,7 +41,11 @@ class FilesInspector(ttk.Frame):
         self.bom_reader = BomReader()
 
         # Instance of ComparisonService
-        self.comparison = ComparisonService()
+        self.comparison = ComparisonService(
+            validator_engines = ValidationEngine(
+                rules=self.config.RULES
+            )
+        )
 
         # Comparison result
         self.comparison_results = []
@@ -51,8 +67,7 @@ class FilesInspector(ttk.Frame):
         # Add comlumn selector widget
         self.column_selector = ColumnsSelector(
             self.option_lf,
-            p_label= "BOM key",
-            s_label= "Secondary key"
+            columns= self.config.KEY_COLUMNS
         )
         self.column_selector.pack(fill="x")
 
@@ -80,33 +95,26 @@ class FilesInspector(ttk.Frame):
         self.result_frame = ttk.Labelframe(self, text="", padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
 
-        # Add type selector widget
+
         self.type_selector = TypeSelector(
             self.result_frame,
-            label='Record based:',
-            on_update_table= self.update_report_table
+            label='Filter',
+            options= self.config.TYPE_OPTIONS,
+            on_update_table= self.on_radio_changed
 
         )
+
         self.type_selector.pack(fill="x")
         # Confirm type selector is already created
-        self.type_selector.select_defaulf()
+        self.type_selector.select_default()
 
 
         # Add Treeview that equals level to Labelframe.
-        columns = (
-            "Drawing Number",
-            "SLDPRT",
-            "SLDDRW",
-            "SLDASM",
-            "PDF",
-            "Status"
-        )
-
         self.report_table = ReportTable(
             self.result_frame,
-            columns=columns
+            columns= self.config.REPORT_TABLE_COLUMNS
         )
-        self.report_table.pack(fill="both", expand=True)
+        self.report_table.pack(fill='both', expand=True)
 
         # ------------------------------------
         # Add progress and message status
@@ -118,8 +126,9 @@ class FilesInspector(ttk.Frame):
         t1 = datetime.now()
         # Read BOM
         bom_path = self.bom_selector.get()
-        combo_values = (self.column_selector.get())
-        bom_dic = self.bom_reader.read_bom(bom_path, combo_values)
+        selected_columns = self.column_selector.get()
+
+        bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
 
         # Update message box rows found
         self.progress_message.info(f"BOM records: {len(bom_dic)}")
@@ -129,10 +138,8 @@ class FilesInspector(ttk.Frame):
         folder_dic = self.folder_scanner.scan_folder(
             folder_path,
         )
-
         # Start progress bar
         self.progress_message.start_progress(len(bom_dic|folder_dic))
-        print(len(bom_dic|folder_dic))
 
         # Update message box files found, list all types of drawing records
         stats = count_file_types(self,folder_dic)
@@ -144,12 +151,13 @@ class FilesInspector(ttk.Frame):
 
         self.progress_message.warning("Comparing...")
 
-        self.comparison_results = self.comparison.compare_validation(
+        self.comparison_results = self.comparison.compare(
             bom_dic,
             folder_dic
-
         )
+
         self.report_table.load_records(self.comparison_results)
+
 
         # self.comparison_results = self.comparison.compare(
         #     bom_dic,
@@ -185,7 +193,6 @@ class FilesInspector(ttk.Frame):
         self.report_table.clear()
 
 
-
     # Temporarily use, to relocate to Services,
     def export_report(self):
         self.progress_message.warning("Exporting...")
@@ -204,19 +211,35 @@ class FilesInspector(ttk.Frame):
         # df.to_excel("exported_treeview.xlsx", index=False)
         # self.progress_message.info("Exported successfully!")
 
-    def update_report_table(self):
+
+    def on_radio_changed(self):
+        FILTERS = {
+            "bom": lambda r:
+            r.has_issue(MissingInLeft),
+
+            "folder": lambda r:
+            r.has_issue(MissingInRight),
+
+            "match": lambda r:
+            r.has_issue(FileMatching),
+
+            "default": lambda r:
+            True,
+        }
+
         selected_option = self.type_selector.selected_option.get()
-        if len(self.comparison_results) > 0:
-            if selected_option == "bom":
-                b_result = self.comparison.filter_results(self.comparison_results,{ComparisonStatus.RIGHT_ONLY})
-                self.report_table.load_records(b_result)
-            elif selected_option == "folder":
-                f_result = self.comparison.filter_results(self.comparison_results,{ComparisonStatus.LEFT_ONLY})
-                self.report_table.load_records(f_result)
-            else:
-                self.report_table.load_records(self.comparison_results)
-        else:
-            self.progress_message.warning("Comparison has not executed yet!")
+
+        predicate = FILTERS[selected_option]
+
+        filtered = [
+            r
+            for r in self.comparison_results
+            if predicate(r)
+        ]
+
+        self.report_table.load_records(filtered)
+
+
         ## Helpful debug
         # print("----------------")
         # print("update_base_record")

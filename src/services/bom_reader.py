@@ -26,7 +26,7 @@ class BomReader:
     def read_bom(
             self,
              file_path: str,
-             col_values: {},
+             selected_columns: {},
          ) -> dict[str,DrawingRecord]:
 
         # Read the excel file and store it into data frame
@@ -38,18 +38,36 @@ class BomReader:
 
         # loop through the data frame to store data into dict: records
         for _, row in df.iterrows():
-            # Check for missing values of drawing col
-            drawing_number = row[col_values['bom_key']]
-            if pd.isna(drawing_number):
-                continue
-            drawing_number = str(row[col_values['bom_key']]).strip()
-            revision = row[col_values['secondary_key']] ## Should be optional
 
-            record = DrawingRecord(
-                drawing_number = drawing_number,
-                bom_revision= revision
+            record = self.create_record(
+                row,
+                selected_columns
             )
-            records[drawing_number] = record
+            if pd.isna(record.drawing_number):
+                continue
+
+            records[record.drawing_number] = record
         return records
 
 
+    def create_record(self,
+                      row,
+                      selected_colums):
+        drawing = self.normalize(row[selected_colums['BOM Key']])
+
+        revision = None
+        if "Revision" in selected_colums:
+            revision = self.normalize(row[selected_colums['Revision']])
+
+        return DrawingRecord(
+            drawing_number=drawing,
+            bom_revision=revision
+        )
+
+
+    @staticmethod
+    def normalize(value):
+        if pd.isna(value):
+            return None
+
+        return str(value).strip()
