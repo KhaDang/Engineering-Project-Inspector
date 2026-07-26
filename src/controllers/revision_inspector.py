@@ -48,7 +48,6 @@ class RevisionsInspector(ttk.Frame):
             )
         )
 
-
         # header and labelframe option container
         option_text = "Scan the Project Folder then compare to BOM"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
@@ -71,7 +70,6 @@ class RevisionsInspector(ttk.Frame):
         )
         self.column_selector.pack(fill="x")
 
-
         # Add path selector widget
         self.folder_selector = PathSelector(
             self.option_lf,
@@ -93,18 +91,6 @@ class RevisionsInspector(ttk.Frame):
         self.result_frame = ttk.Labelframe(self, text="", padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
 
-        # Add type selector widget
-        # self.type_selector = TypeSelector(
-        #     self.result_frame,
-        #     label='Record based:',
-        #     on_update_table= self.update_report_table
-        #
-        # )
-        # self.type_selector.pack(fill="x")
-        # Confirm type selector is already created
-        # self.type_selector.select_defaulf()
-        # Add Treeview that equals level to Labelframe.
-
         self.report_table = ReportTable(
             self.result_frame,
             columns=self.config.REPORT_TABLE_COLUMNS
@@ -124,22 +110,17 @@ class RevisionsInspector(ttk.Frame):
         selected_columns = self.column_selector.get()
         bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
 
-
         # Scan Folder
         folder_path = self.folder_selector.get()
         folder_dic = self.folder_scanner.parse_filename(
             folder_path,
         )
 
-        print(folder_dic)
-
         self.comparison_results = self.comparison.compare(
             bom_dic,
             folder_dic
         )
-
         self.report_table.load_records_rev(self.comparison_results)
-
 
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)
@@ -149,25 +130,11 @@ class RevisionsInspector(ttk.Frame):
     def on_clear(self):
         self.report_table.clear()
 
-
-
     # Temporarily use, to relocate to Services,
     def export_report(self):
         self.progress_message.warning("Exporting...")
-        self.comparison.create_report(self.comparison_results)
+        self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
         self.progress_message.warning("Export completed!")
-
-        # # 1. Extract data values from the Treeview widget
-        # row_data = [self.report_table.tree.item(child)["values"] for child in self.report_table.tree.get_children()]
-        #
-        # # 2. Extract column headers from the Treeview widget
-        # column_headers = self.report_table.tree["columns"]
-        #
-        # # 3. Create the Pandas DataFrame
-        # df = pd.DataFrame(row_data, columns=column_headers)
-        #
-        # df.to_excel("exported_treeview.xlsx", index=False)
-        # self.progress_message.info("Exported successfully!")
 
     def update_report_table(self):
         selected_option = self.type_selector.selected_option.get()

@@ -50,4 +50,10 @@ class ReportTable(ttk.Frame):
             self.insert_row(
                 record.to_table_row_rev()
             )
+    def load_records_fol(self, records):
+        self.clear()
 
+        for record in records:
+            self.insert_row(
+                record.to_table_row_fol()
+            )

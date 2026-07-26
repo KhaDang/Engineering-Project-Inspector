@@ -43,11 +43,21 @@ class ComparisonResult:
 
     def to_table_row_rev(self):
 
-        source = self.left_record or self.right_record
-
+        bom_revision = self.left_record.bom_revision if self.left_record and self.left_record.bom_revision else '-'
+        pdf_revision = self.right_record.pdf_revision if self.right_record and self.right_record.pdf_revision else '-'
         return (
             self.drawing_number,
-            source.bom_revision if source and self.left_record else "X",
-            source.pdf_revision if source and self.right_record else "X",
+            bom_revision,
+            pdf_revision,
+            ', '.join(issue.message for issue in self.issues)
+        )
+
+    def to_table_row_fol(self):
+        file_in_a = "✓" if self.left_record and self.left_record.drawing_number else 'X'
+        file_in_b = "✓" if self.right_record and self.right_record.drawing_number else 'X'
+        return (
+            self.drawing_number,
+            file_in_a,
+            file_in_b,
             ', '.join(issue.message for issue in self.issues)
         )

@@ -22,7 +22,6 @@ from models.comparison_issue import MissingInLeft, MissingInRight, FileMatching
 
 # Import Rules/ValidationEngine
 from rules.validation_engine import ValidationEngine
-from rules.missing_record_rule import MissingRecordRule
 
 # Import datetime
 from datetime import datetime
@@ -196,7 +195,7 @@ class FilesInspector(ttk.Frame):
     # Temporarily use, to relocate to Services,
     def export_report(self):
         self.progress_message.warning("Exporting...")
-        self.comparison.create_report(self.comparison_results)
+        self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
         self.progress_message.warning("Export completed!")
 
         # # 1. Extract data values from the Treeview widget

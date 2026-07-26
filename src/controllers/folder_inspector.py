@@ -1,33 +1,44 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-
+# Import UI
 from views.path_selector import PathSelector
 from views.path_selector import BrowseType
 from views.report_table import ReportTable
 from views.type_selector import TypeSelector
 
+# Import Configuration
+from workflows.folder_inspector_config import FolderInspectorConfig
+
 # Import Services
 from services.folder_scanner import FolderScanner, count_file_types
 from services.comparison_service import ComparisonService
-# from models.comparsion_result import ComparisonStatus
 
+# Import issues
+from models.comparison_issue import MissingInLeft, MissingInRight, FileMatching
+
+# Import Validator
+from rules.validation_engine import ValidationEngine
 
 # Import datetime
 from datetime import datetime
 
-class FolderToFolder(ttk.Frame):
+class FolderInspector(ttk.Frame):
     def __init__(self, parent):
 
         super().__init__(parent, padding=20)
 
+        # Instance for Configurations
+        self.config = FolderInspectorConfig()
+
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
 
-        # # Instance of ComparisonService
-        # self.comparison = ComparisonService()
-        #
-        # # Comparison result
-        # self.comparison_results = []
+        # Instance of ComparisonService
+        self.comparison = ComparisonService(
+            validator_engines= ValidationEngine(
+                rules= self.config.RULES
+            )
+        )
 
         # header and labelframe option container
         option_text = "Scan 2 Project Folders and compare their file names"
@@ -61,7 +72,7 @@ class FolderToFolder(ttk.Frame):
         # Trigger button!
         trigger_button = ttk.Button(
             self,
-            text="Inspect Files",
+            text="Inspect Folders",
             width=10,
             command=self.on_compare
         )
@@ -72,19 +83,22 @@ class FolderToFolder(ttk.Frame):
         self.result_frame = ttk.Labelframe(self, text=result_frame_text, padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
 
-        # Add Treeview that equals level to Labelframe.
-        columns = (
-            "Drawing Number",
-            "SLDPRT",
-            "SLDDRW",
-            "SLDASM",
-            "PDF",
-            "Status"
-        )
+        self.type_selector = TypeSelector(
+            self.result_frame,
+            label='Filter',
+            options=self.config.TYPE_OPTIONS,
+            on_update_table=self.on_radio_changed
 
+        )
+        self.type_selector.pack(fill="x")
+        # Confirm type selector is already created
+        self.type_selector.select_default()
+
+
+        # Add Treeview that equals level to Labelframe.
         self.report_table = ReportTable(
             self.result_frame,
-            columns=columns
+            columns=self.config.REPORT_TABLE_COLUMNS
         )
         self.report_table.pack(fill="both", expand=True)
 
@@ -114,27 +128,39 @@ class FolderToFolder(ttk.Frame):
         self.comparison_results = self.comparison.compare(
             left_dic,
             right_dic,
-            progress_callback=None
-            # Callback function (argument were passed from class Folder Scanner)
-
         )
-        # matches = len(self.comparison.filter_results(
-        #     self.comparison_results,
-        #     {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
-        #     )
-        # )
+
         t2 = datetime.now()
 
-        # Update progress bar
-        # Filter the results _ exclude the LEFT_ONLY
-        filtered_comparison_results = self.comparison.filter_results(self.comparison_results, {ComparisonStatus.RIGHT_ONLY} )
-        self.type_selector.bom_opt.invoke()
-
-        # update report table
-        self.report_table.load_records(filtered_comparison_results)
-
-        self.export_report()
+        self.report_table.load_records_fol(self.comparison_results)
 
 
     def export_report(self):
-        self.comparison.create_report(self.comparison_results)
+        self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
+
+    def on_radio_changed(self):
+        FILTERS = {
+            "dir1": lambda r:
+            r.has_issue(MissingInLeft),
+
+            "dir2": lambda r:
+            r.has_issue(MissingInRight),
+
+            "match": lambda r:
+            r.has_issue(FileMatching),
+
+            "default": lambda r:
+            True,
+        }
+
+        selected_option = self.type_selector.selected_option.get()
+
+        predicate = FILTERS[selected_option]
+
+        filtered = [
+            r
+            for r in self.comparison_results
+            if predicate(r)
+        ]
+
+        self.report_table.load_records_fol(filtered)

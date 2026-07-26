@@ -32,14 +32,16 @@ class ComparisonService:
             results.append(result)
         return results
 
-    def create_report(self, results):
+    def create_report(self, results, columns):
         report = []
         if len(results)>0:
             for drawing in results:
-                report.append(drawing.to_table_row())
+                if len(columns) == 5:
+                    report.append(drawing.to_table_row())
+                if len(columns) == 4:
+                    report.append(drawing.to_table_row_rev())
 
-        df = pd.DataFrame(report, columns=["Drawing", "SLDPRT", "SLDDRW", "SLDASM", "STATUS"])
+        df = pd.DataFrame(report, columns=columns)
         df.to_excel("exported_dataframe.xlsx", index=False)
-
 
 
