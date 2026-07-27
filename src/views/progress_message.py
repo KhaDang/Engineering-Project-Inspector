@@ -1,3 +1,5 @@
+import tkinter
+
 import ttkbootstrap as ttk
 from ttkbootstrap.widgets.scrolled import ScrolledText
 from ttkbootstrap.constants import *
@@ -26,19 +28,19 @@ class ProgressMessage(ttk.Frame):
         )
         self.progressbar.pack(fill=X, expand=YES)
 
-        option_text = " "
-        self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
-        self.option_lf.pack(fill=X, expand=NO, anchor=N)
+        # option_text = " "
+        # self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
+        # self.option_lf.pack(fill=X, expand=NO, anchor=N)
 
         title = ttk.Label(
-            self.option_lf,
+            self,
             text=self.label,
             width=15
         )
         title.pack(fill="x")
         # Scrolled Text
         self.console = ScrolledText(
-            self.option_lf,
+            self,
             padding= 5,
             autohide=True,
         )
@@ -48,7 +50,9 @@ class ProgressMessage(ttk.Frame):
 
 
     def clear(self):
-        ...
+        self.console.text.delete("1.0", tkinter.END)
+        self.console.text.insert("end", "Sytem initialized...\n")
+
 
     def info(self, message):
 
@@ -59,7 +63,6 @@ class ProgressMessage(ttk.Frame):
         timestamp = datetime.now().strftime("%H:%M:%S")
         self.console.text.insert("end", f"{timestamp}: {message} \n")
         self.console.text.see("end")
-
 
 
     def error(self, message):

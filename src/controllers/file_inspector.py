@@ -1,3 +1,5 @@
+from multiprocessing.spawn import set_executable
+
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
@@ -16,12 +18,11 @@ from workflows.file_inspector_configs import FileInspectorConfig
 from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
-
-# Import issues
-from models.comparison_issue import MissingInLeft, MissingInRight, FileMatching
+from services.report_formatter import ReportFormatter
 
 # Import Rules/ValidationEngine
 from rules.validation_engine import ValidationEngine
+
 
 # Import datetime
 from datetime import datetime
@@ -49,8 +50,11 @@ class FilesInspector(ttk.Frame):
         # Comparison result
         self.comparison_results = []
 
+        # Instance for Report Formatter
+        self.r_formatter = ReportFormatter()
+
         # header and labelframe option container
-        option_text = "Compare the BOM records to the Project Folder"
+        option_text = "Compare BOM records to the Project Folder"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 
@@ -70,7 +74,6 @@ class FilesInspector(ttk.Frame):
         )
         self.column_selector.pack(fill="x")
 
-
         # Add path selector widget
         self.folder_selector = PathSelector(
             self.option_lf,
@@ -78,8 +81,6 @@ class FilesInspector(ttk.Frame):
             browse_type=BrowseType.FOLDER
         )
         self.folder_selector.pack(fill="x")
-
-
 
         # Trigger button!
         trigger_button = ttk.Button(
@@ -93,7 +94,6 @@ class FilesInspector(ttk.Frame):
         # Add Result frame label
         self.result_frame = ttk.Labelframe(self, text="", padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
-
 
         self.type_selector = TypeSelector(
             self.result_frame,
@@ -142,13 +142,12 @@ class FilesInspector(ttk.Frame):
 
         # Update message box files found, list all types of drawing records
         stats = count_file_types(self,folder_dic)
-        self.progress_message.info(f"Drawing records: {stats.drawing_records}")
-        self.progress_message.info(f"SLDPRT : {stats.part_count}")
-        self.progress_message.info(f"SLDDRW : {stats.drawing_count}")
-        self.progress_message.info(f"SLDASM : {stats.assembly_count}")
-        self.progress_message.info(f"Duplicates : {stats.duplicate_count}")
 
-        self.progress_message.warning("Comparing...")
+        self.r_formatter.report(
+            self.progress_message,
+            stats,
+            self.config.REPORT_STATUS_MESSAGES
+        )
 
         self.comparison_results = self.comparison.compare(
             bom_dic,
@@ -157,39 +156,15 @@ class FilesInspector(ttk.Frame):
 
         self.report_table.load_records(self.comparison_results)
 
-
-        # self.comparison_results = self.comparison.compare(
-        #     bom_dic,
-        #     folder_dic,
-        #     progress_callback=self.progress_message.update_progress
-        #     # Callback function (argument were passed from class Folder Scanner)
-        #
-        # )
-        # matches = len(self.comparison.filter_results(
-        #     self.comparison_results,
-        #     {ComparisonStatus.LEFT_ONLY, ComparisonStatus.RIGHT_ONLY}
-        #     )
-        # )
-        # self.progress_message.warning(f"Total matches: {matches}")
-        # t2 = datetime.now()
-        #
-        # # Update progress bar
-        # self.progress_message.warning(f"Finished in: {(t2 - t1).total_seconds()} sec")
-        # # Filter the results _ exclude the LEFT_ONLY
-        # filtered_comparison_results = self.comparison.filter_results(self.comparison_results, {ComparisonStatus.RIGHT_ONLY} )
-        # self.type_selector.bom_opt.invoke()
-        #
-        # # update report table
-        # self.report_table.load_records(filtered_comparison_results)
-
-
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)
         self.column_selector.set_values(headers)
         self.progress_message.warning("✓ BOM loaded ")
 
     def on_clear(self):
+        self.comparison_results=[]
         self.report_table.clear()
+        self.progress_message.clear()
 
 
     # Temporarily use, to relocate to Services,
@@ -198,37 +173,11 @@ class FilesInspector(ttk.Frame):
         self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
         self.progress_message.warning("Export completed!")
 
-        # # 1. Extract data values from the Treeview widget
-        # row_data = [self.report_table.tree.item(child)["values"] for child in self.report_table.tree.get_children()]
-        #
-        # # 2. Extract column headers from the Treeview widget
-        # column_headers = self.report_table.tree["columns"]
-        #
-        # # 3. Create the Pandas DataFrame
-        # df = pd.DataFrame(row_data, columns=column_headers)
-        #
-        # df.to_excel("exported_treeview.xlsx", index=False)
-        # self.progress_message.info("Exported successfully!")
-
-
     def on_radio_changed(self):
-        FILTERS = {
-            "bom": lambda r:
-            r.has_issue(MissingInLeft),
-
-            "folder": lambda r:
-            r.has_issue(MissingInRight),
-
-            "match": lambda r:
-            r.has_issue(FileMatching),
-
-            "default": lambda r:
-            True,
-        }
 
         selected_option = self.type_selector.selected_option.get()
 
-        predicate = FILTERS[selected_option]
+        predicate = self.config.FILTERS[selected_option]
 
         filtered = [
             r
@@ -237,7 +186,7 @@ class FilesInspector(ttk.Frame):
         ]
 
         self.report_table.load_records(filtered)
-
+        self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")
 
         ## Helpful debug
         # print("----------------")

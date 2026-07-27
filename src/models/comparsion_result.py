@@ -61,3 +61,36 @@ class ComparisonResult:
             file_in_b,
             ', '.join(issue.message for issue in self.issues)
         )
+
+# @dataclass
+# class ResultStatistics:
+#
+#     match_count: int = 0
+#     left_count: int = 0
+#     right_count: int = 0
+#     duplicate_count: int = 0
+#
+#
+# def get_statistic(self, records) -> ResultStatistics:
+#
+#     stats = ResultStatistics()
+#
+#     for record in records.values():
+#
+#         if
+#             stats.part_count += 1
+#
+#         if record.drawing_path:
+#             stats.drawing_count += 1
+#
+#         if record.assembly_path:
+#             stats.assembly_count += 1
+#
+#         if record.pdf_path:
+#             stats.pdf_count += 1
+#
+#         stats.duplicate_count += len(record.part_duplicates)
+#         stats.duplicate_count += len(record.drawing_duplicates)
+#         stats.duplicate_count += len(record.assembly_duplicates)
+#
+#     return stats
