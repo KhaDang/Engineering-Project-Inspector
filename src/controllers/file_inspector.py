@@ -1,5 +1,3 @@
-from multiprocessing.spawn import set_executable
-
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
@@ -132,13 +130,13 @@ class FilesInspector(ttk.Frame):
         # Update message box rows found
         self.progress_message.info(f"BOM records: {len(bom_dic)}")
 
-        # Scan Folder
+        # Scan Folder, update progress bar
         folder_path = self.folder_selector.get()
         folder_dic = self.folder_scanner.scan_folder(
             folder_path,
+            self.progress_message.start_progress,
+            self.progress_message.update_progress
         )
-        # Start progress bar
-        self.progress_message.start_progress(len(bom_dic|folder_dic))
 
         # Update message box files found, list all types of drawing records
         stats = count_file_types(self,folder_dic)

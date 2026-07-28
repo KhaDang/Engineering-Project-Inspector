@@ -16,7 +16,11 @@ class ProgressMessage(ttk.Frame):
 
     def __init__(self, master, label, **kwargs):
         super().__init__(master, **kwargs)
+
+        self.master = master
+
         self.label = label
+
         self.create_widgets()
 
     def create_widgets(self):
@@ -76,9 +80,13 @@ class ProgressMessage(ttk.Frame):
         self.progressbar["maximum"] = maximum
         self.progressbar["value"] = 10
 
-    def update_progress(self, value):
+    def update_progress(self, value, text):
 
         self.progressbar["value"] = value
+        self.console.text.delete("insert linestart", "insert lineend")
+        self.console.text.insert("insert", text)
+
+        self.progressbar.update_idletasks()
 
     def finish_progress(self):
 

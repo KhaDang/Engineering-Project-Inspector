@@ -1,7 +1,6 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
-from rules.validation_engine import ValidationEngine
 # Import UI
 from views.path_selector import PathSelector
 from views.path_selector import BrowseType
@@ -17,16 +16,13 @@ from workflows.rev_inspector_config import RevInspectorConfig
 from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
+from services.report_formatter import ReportFormatter
 
-#Import Rules for comparison
-from rules.missing_record_rule import MissingRecordRule
-from rules.revision_rule import RevisionRule
-
+# Import Rules/ValidationEngine
+from rules.validation_engine import ValidationEngine
 
 # Import Datetime
 from datetime import datetime
-
-
 
 class RevisionsInspector(ttk.Frame):
     def __init__(self, parent):
@@ -43,10 +39,16 @@ class RevisionsInspector(ttk.Frame):
 
         # Instance of ComparisonService
         self.comparison = ComparisonService(
-            validator_engines= ValidationEngine(
-                rules= self.config.RULES
+            validator_engines = ValidationEngine(
+                rules=self.config.RULES
             )
         )
+
+        # Comparison result
+        self.comparison_results = []
+
+        # Instance for Report Formatter
+        self.r_formatter = ReportFormatter()
 
         # header and labelframe option container
         option_text = "Scan the Project Folder then compare to BOM"
@@ -110,16 +112,31 @@ class RevisionsInspector(ttk.Frame):
         selected_columns = self.column_selector.get()
         bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
 
-        # Scan Folder
+        # Update message box rows found
+        self.progress_message.info(f"BOM records: {len(bom_dic)}")
+
+        # Scan Folder, update progress bar
         folder_path = self.folder_selector.get()
         folder_dic = self.folder_scanner.parse_filename(
             folder_path,
+            self.progress_message.start_progress,
+            self.progress_message.update_progress
+        )
+
+        # Update message box files found, list all types of drawing records
+        stats = count_file_types(self, folder_dic)
+
+        self.r_formatter.report(
+            self.progress_message,
+            stats,
+            self.config.REPORT_STATUS_MESSAGES
         )
 
         self.comparison_results = self.comparison.compare(
             bom_dic,
             folder_dic
         )
+
         self.report_table.load_records_rev(self.comparison_results)
 
     def on_bom_selected(self, bom_path):
@@ -135,23 +152,3 @@ class RevisionsInspector(ttk.Frame):
         self.progress_message.warning("Exporting...")
         self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
         self.progress_message.warning("Export completed!")
-
-    def update_report_table(self):
-        selected_option = self.type_selector.selected_option.get()
-        if len(self.comparison_results) > 0:
-            if selected_option == "bom":
-                b_result = self.comparison.filter_results(self.comparison_results,{ComparisonStatus.RIGHT_ONLY})
-                self.report_table.load_records(b_result)
-            elif selected_option == "folder":
-                f_result = self.comparison.filter_results(self.comparison_results,{ComparisonStatus.LEFT_ONLY})
-                self.report_table.load_records(f_result)
-            else:
-                self.report_table.load_records(self.comparison_results)
-        else:
-            self.progress_message.warning("Comparison has not executed yet!")
-        ## Helpful debug
-        # print("----------------")
-        # print("update_base_record")
-        # print("self =", self)
-        # print("class =", self.__class__.__name__)
-        # print("attributes =", self.__dict__.keys())

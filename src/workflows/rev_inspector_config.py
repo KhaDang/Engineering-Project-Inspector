@@ -30,3 +30,19 @@ class RevInspectorConfig:
         "Folder_rev",
         "Status"
     ]
+
+    REPORT_STATUS_MESSAGES = [
+
+        ("info", "      Indexed files ", "drawing_records"),
+
+    ]
+    REPORT_RESULT_MESSAGES = [
+
+        ("info", "      Matching file", ""),
+
+        ("info", "      Missing in Folder", ""),
+
+        ("info", "      Missing in BOM", ""),
+
+
+    ]

@@ -20,6 +20,8 @@ class FolderScanner:
     def scan_folder(
             self,
             folder_path,
+            progress_max = None,
+            progress_callback = None,
             ) -> dict[str, DrawingRecord]:
         search_folder = Path(fr"{folder_path}")
 
@@ -38,8 +40,12 @@ class FolderScanner:
                     file_index[name][ext].append(
                         os.path.join(root, file)
                     )
+        # Call back to expose len of file_index update progress
+        if progress_max:
+            progress_max(len(file_index))
 
         records = {}
+        current = 0
         for drawing_number, extensions in file_index.items():
             record = DrawingRecord (drawing_number = drawing_number)
 
@@ -69,12 +75,28 @@ class FolderScanner:
 
 
             records[drawing_number] = record
+            current +=1
+            if progress_callback:
+                progress_callback(current, drawing_number)
         return records
 
-    def parse_filename(self, folder_path) -> dict[str, DrawingRecord]:
+    def parse_filename(
+            self,
+            folder_path,
+            progress_max=None,
+            progress_callback=None,
+                ) -> dict[str, DrawingRecord]:
 
         records = {}
 
+        total = 0
+        for root, dirs, files in os.walk(folder_path):
+            total += len(files)
+        if progress_max:
+            progress_max(total)
+
+
+        current = 0
         for root, dirs, files in os.walk(folder_path):
             for file in files:
                 name, ext = os.path.splitext(file)
@@ -88,7 +110,9 @@ class FolderScanner:
                         DrawingRecord(parsed.drawing_number)
                     )
                     record.pdf_revision = parsed.revision
-
+                current += 1
+                if progress_callback:
+                    progress_callback(current, file)
         return records
 
 
