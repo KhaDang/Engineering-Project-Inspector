@@ -93,6 +93,17 @@ class RevisionsInspector(ttk.Frame):
         self.result_frame = ttk.Labelframe(self, text="", padding=15)
         self.result_frame.pack(fill=X, expand=YES, anchor=N)
 
+        self.type_selector = TypeSelector(
+            self.result_frame,
+            label='Filter',
+            options=self.config.TYPE_OPTIONS,
+            on_update_table=self.on_radio_changed
+
+        )
+        self.type_selector.pack(fill="x")
+        # Confirm type selector is already created
+        self.type_selector.select_default()
+
         self.report_table = ReportTable(
             self.result_frame,
             columns=self.config.REPORT_TABLE_COLUMNS
@@ -145,10 +156,27 @@ class RevisionsInspector(ttk.Frame):
         self.progress_message.warning("✓ BOM loaded ")
 
     def on_clear(self):
+        self.comparison_results = []
         self.report_table.clear()
+        self.progress_message.clear()
 
     # Temporarily use, to relocate to Services,
     def export_report(self):
         self.progress_message.warning("Exporting...")
-        self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
+        self.r_formatter.create_report(2, self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
         self.progress_message.warning("Export completed!")
+
+    def on_radio_changed(self):
+
+        selected_option = self.type_selector.selected_option.get()
+
+        predicate = self.config.FILTERS[selected_option]
+
+        filtered = [
+            r
+            for r in self.comparison_results
+            if predicate(r)
+        ]
+
+        self.report_table.load_records_rev(filtered)
+        self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")

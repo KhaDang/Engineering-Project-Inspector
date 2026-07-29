@@ -18,7 +18,7 @@ class Settings:
 
     @classmethod
     def load(cls):
-        settings_file = Path("workflows/settings.json")
+        settings_file = Path("src/workflows/settings.json")
         if not settings_file.exists():
             return cls()
 
@@ -28,13 +28,11 @@ class Settings:
 
 
     def save(self):
-        settings_file = Path("workflows/settings.json")
+        settings_file = Path("src/workflows/settings.json")
         with open(settings_file, "w") as file:
             json.dump(
                 asdict(self),
-
                 file,
-
                 indent=4
 
             )

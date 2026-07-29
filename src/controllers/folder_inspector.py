@@ -5,6 +5,7 @@ from views.path_selector import PathSelector
 from views.path_selector import BrowseType
 from views.report_table import ReportTable
 from views.type_selector import TypeSelector
+from views.progress_message import ProgressMessage
 
 # Import Configuration
 from workflows.folder_inspector_config import FolderInspectorConfig
@@ -12,6 +13,7 @@ from workflows.folder_inspector_config import FolderInspectorConfig
 # Import Services
 from services.folder_scanner import FolderScanner, count_file_types
 from services.comparison_service import ComparisonService
+from services.report_formatter import ReportFormatter
 
 # Import issues
 from models.comparison_issue import MissingInLeft, MissingInRight, FileMatching
@@ -40,6 +42,9 @@ class FolderInspector(ttk.Frame):
             )
         )
 
+        # Instance for Report Formatter
+        self.r_formatter = ReportFormatter()
+
         # header and labelframe option container
         option_text = "Scan 2 Project Folders"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
@@ -60,14 +65,6 @@ class FolderInspector(ttk.Frame):
             browse_type=BrowseType.FOLDER
         )
         self.right_folder_selector.pack(fill="x")
-
-        # Add type selector widget
-        # self.type_selector = TypeSelector(
-        #     self.option_lf,
-        #     label='Type',
-        #     on_update_table=None
-        # )
-        # self.type_selector.pack(fill="x")
 
         # Trigger button!
         trigger_button = ttk.Button(
@@ -103,14 +100,8 @@ class FolderInspector(ttk.Frame):
         self.report_table.pack(fill="both", expand=True)
 
         # Add progress bar
-        self.progressbar = ttk.Progressbar(
-            master=self,
-            mode=INDETERMINATE,
-            bootstyle=(STRIPED, SUCCESS)
-        )
-        self.progressbar.pack(fill=X, expand=YES)
-
-
+        self.progress_message = ProgressMessage(self, "Status")
+        self.progress_message.pack(fill="x")
 
     def on_compare(self):
         t1 = datetime.now()
@@ -119,10 +110,28 @@ class FolderInspector(ttk.Frame):
         left_dic = self.folder_scanner.scan_folder(left_path)
 
 
-        # Scan Folder
+        # Scan right folder
         right_path = self.right_folder_selector.get()
         right_dic = self.folder_scanner.scan_folder(
             right_path,
+            self.progress_message.start_progress,
+            self.progress_message.update_progress
+        )
+        # Update message box files found, list all types of drawing records
+        left_stats = count_file_types(self, left_dic)
+        right_stats = count_file_types(self, right_dic)
+
+        self.progress_message.info('Indexing files in Directory 1...')
+        self.r_formatter.report(
+            self.progress_message,
+            left_stats,
+            self.config.REPORT_STATUS_MESSAGES
+        )
+        self.progress_message.info('Indexing files in Directory 2...')
+        self.r_formatter.report(
+            self.progress_message,
+            right_stats,
+            self.config.REPORT_STATUS_MESSAGES
         )
 
         self.comparison_results = self.comparison.compare(
@@ -136,26 +145,15 @@ class FolderInspector(ttk.Frame):
 
 
     def export_report(self):
-        self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
+        self.progress_message.warning("Exporting...")
+        self.r_formatter.create_report(3,self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
+        self.progress_message.warning("Export completed!")
 
     def on_radio_changed(self):
-        FILTERS = {
-            "dir1": lambda r:
-            r.has_issue(MissingInLeft),
-
-            "dir2": lambda r:
-            r.has_issue(MissingInRight),
-
-            "match": lambda r:
-            r.has_issue(FileMatching),
-
-            "default": lambda r:
-            True,
-        }
 
         selected_option = self.type_selector.selected_option.get()
 
-        predicate = FILTERS[selected_option]
+        predicate = self.config.FILTERS[selected_option]
 
         filtered = [
             r
@@ -164,3 +162,6 @@ class FolderInspector(ttk.Frame):
         ]
 
         self.report_table.load_records_fol(filtered)
+
+        self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")
+

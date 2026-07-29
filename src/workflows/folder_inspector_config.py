@@ -1,4 +1,4 @@
-from rules.missing_record_rule import MissingRecordRule
+from rules.missing_record_rule import MissingRecordRule, MissingInLeft, MissingInRight, FileMatching
 
 class FolderInspectorConfig:
     # Configuration for radio buttons
@@ -10,7 +10,19 @@ class FolderInspectorConfig:
 
     }
 
-    ENABLE_REVISION = False
+    FILTERS = {
+        "dir1": lambda r:
+        r.has_issue(MissingInLeft),
+
+        "dir2": lambda r:
+        r.has_issue(MissingInRight),
+
+        "match": lambda r:
+        r.has_issue(FileMatching),
+
+        "default": lambda r:
+        True,
+    }
 
     RULES = [
         MissingRecordRule(),
@@ -30,4 +42,20 @@ class FolderInspectorConfig:
         "Directory 1",
         "Directory 2",
         "Status"
+    ]
+
+    REPORT_STATUS_MESSAGES = [
+
+        ("info", "      Indexed files ", "drawing_records"),
+
+        ("info", "      SLDPRT", "part_count"),
+
+        ("info", "      SLDDRW", "drawing_count"),
+
+        ("info", "      SLDASM", "assembly_count"),
+
+        ("info", "      PDF", "pdf_count"),
+
+        ("info", "      Duplication", "duplicate_count")
+
     ]

@@ -168,7 +168,7 @@ class FilesInspector(ttk.Frame):
     # Temporarily use, to relocate to Services,
     def export_report(self):
         self.progress_message.warning("Exporting...")
-        self.comparison.create_report(self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
+        self.r_formatter.create_report(1, self.comparison_results, self.config.REPORT_TABLE_COLUMNS)
         self.progress_message.warning("Export completed!")
 
     def on_radio_changed(self):
