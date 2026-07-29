@@ -41,7 +41,7 @@ class FolderInspector(ttk.Frame):
         )
 
         # header and labelframe option container
-        option_text = "Scan 2 Project Folders and compare their file names"
+        option_text = "Scan 2 Project Folders"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 

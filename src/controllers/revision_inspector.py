@@ -51,7 +51,7 @@ class RevisionsInspector(ttk.Frame):
         self.r_formatter = ReportFormatter()
 
         # header and labelframe option container
-        option_text = "Scan the Project Folder then compare to BOM"
+        option_text = "Scan BOM records with Rev and compare to Project Folder"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 

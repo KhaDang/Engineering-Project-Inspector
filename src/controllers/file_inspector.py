@@ -52,7 +52,7 @@ class FilesInspector(ttk.Frame):
         self.r_formatter = ReportFormatter()
 
         # header and labelframe option container
-        option_text = "Compare BOM records to the Project Folder"
+        option_text = "Scan BOM records and compare to Project Folder"
         self.option_lf = ttk.Labelframe(self, text=option_text, padding=15)
         self.option_lf.pack(fill=X, expand=YES, anchor=N)
 

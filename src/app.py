@@ -28,7 +28,7 @@ class EngineeringFileManagerApp:
 
         # self.load_settings()
 
-        self.theme_manager = ThemeManager()
+        self.theme_manager = ThemeManager(tb.Style(theme='flatly'))
 
     def create_window(self):
         self.app = tb.Window(themename="cosmo")
@@ -61,7 +61,9 @@ class EngineeringFileManagerApp:
             self.on_clear
 
         )
-        MenuBar(self.app, bind_menubar_events, update_theme=self.on_theme_changed)
+        MenuBar(self.app, bind_menubar_events, self.on_theme_changed)
+        
+        
     def create_statusbar(self):
         ...
     def bind_events(self):
