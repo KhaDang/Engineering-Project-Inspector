@@ -69,7 +69,7 @@ class FolderScanner:
 
             if ".pdf" in extensions:
                 paths = extensions[".pdf"]
-                record.pdf_duplicates = paths[0]
+                record.pdf_path = paths[0]
                 if len(paths) > 1:
                     record.pdf_duplicates.extend(paths[1:])
 
