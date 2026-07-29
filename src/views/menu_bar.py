@@ -21,7 +21,10 @@ class MenuItem:
 
 
 class MenuBar:
-    def __init__(self, master, event: MenuBarEventHandler):
+    def __init__(self,
+                 master,
+                 event: MenuBarEventHandler,
+                 update_theme=None):
 
         FILE_MENU = [
 
@@ -38,10 +41,33 @@ class MenuBar:
             MenuItem("Copy", on_exit),
         ]
 
+        THEMES = {
+
+            "Flatly": "flatly",
+
+            "Cosmo": "cosmo",
+
+            "Superhero": "superhero",
+
+            "Cyborg": "cyborg",
+
+        }
+
+        theme_menu = MenuItem()
+        for label, theme in THEMES.items():
+            theme_menu.command(
+
+                label=label,
+
+                command=lambda t=theme:
+                self.on_theme_changed(t)
+
+            )
 
         self.menubar = tk.Menu(master)
         self.add_menu("File", FILE_MENU)
         self.add_menu("Edit", EDIT_MENU)
+        self.add_menu("Theme", THEMES)
         master.config(menu=self.menubar)
 
 

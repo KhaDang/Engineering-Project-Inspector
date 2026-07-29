@@ -6,7 +6,7 @@ from controllers.file_inspector import FilesInspector
 from controllers.revision_inspector import RevisionsInspector
 from controllers.folder_inspector import FolderInspector
 # from controllers.tab_compare_two_files import FileToFile
-
+from services.theme_manager import ThemeManager
 
 # Import Menu bar
 from views.menu_bar import MenuBar
@@ -28,9 +28,10 @@ class EngineeringFileManagerApp:
 
         # self.load_settings()
 
+        self.theme_manager = ThemeManager()
 
     def create_window(self):
-        self.app = tb.Window(themename="superhero")
+        self.app = tb.Window(themename="cosmo")
         self.app.title("Engineering File Manager")
         self.app.geometry("1100x860")
 
@@ -60,7 +61,7 @@ class EngineeringFileManagerApp:
             self.on_clear
 
         )
-        MenuBar(self.app, bind_menubar_events)
+        MenuBar(self.app, bind_menubar_events, update_theme=self.on_theme_changed)
     def create_statusbar(self):
         ...
     def bind_events(self):
@@ -68,8 +69,14 @@ class EngineeringFileManagerApp:
     def load_settings(self):
         ...
     def on_export(self):
-        self.revision_inspector.export_report()
+
+        current_tab_object = self.notebook.nametowidget(self.notebook.select())
+
+        current_tab_object.export_report()
 
     def on_clear(self):
         self.files_inspector.on_clear()
 
+    def on_theme_changed(self, theme_name):
+        # Switch the entire window theme dynamically
+        self.theme_manager.apply_theme(theme_name)
