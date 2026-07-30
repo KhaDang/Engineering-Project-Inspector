@@ -17,6 +17,7 @@ from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
 from services.report_formatter import ReportFormatter
+from services.error_handler import ErrorHandler, MissingBomFileError
 
 # Import Rules/ValidationEngine
 from rules.validation_engine import ValidationEngine
@@ -31,6 +32,9 @@ class FilesInspector(ttk.Frame):
 
         # Instance for Workflow configuration
         self.config = FileInspectorConfig()
+
+        # Error handler
+        self.error_handler =  ErrorHandler()
 
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
@@ -125,7 +129,12 @@ class FilesInspector(ttk.Frame):
         bom_path = self.bom_selector.get()
         selected_columns = self.column_selector.get()
 
-        bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
+        try:
+            bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
+
+        except MissingBomFileError as e:
+            self.error_handler.handle(e)
+
 
         # Update message box rows found
         self.progress_message.info(f"BOM records: {len(bom_dic)}")
