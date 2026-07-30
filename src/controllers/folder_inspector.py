@@ -143,6 +143,12 @@ class FolderInspector(ttk.Frame):
 
         self.report_table.load_records_fol(self.comparison_results)
 
+    def on_clear(self):
+        self.comparison_results = []
+        self.report_table.clear()
+        self.progress_message.clear()
+
+
 
     def export_report(self):
         self.progress_message.warning("Exporting...")
