@@ -5,6 +5,10 @@ import openpyxl
 #Import model drawing_record
 from models.drawing_record import DrawingRecord
 
+# Import Exception
+from exceptions.base_exception import MissingBomFileError
+
+
 class BomReader:
 
     def __init__(self):
@@ -28,6 +32,11 @@ class BomReader:
              file_path: str,
              selected_columns: {},
          ) -> dict[str,DrawingRecord]:
+
+        print(len(file_path))
+        # Manage the error
+        if not Path(file_path).exists() or len(file_path) == 0:
+            raise MissingBomFileError(file_path)
 
         # Read the excel file and store it into data frame
         bom_file = Path(fr"{file_path}")

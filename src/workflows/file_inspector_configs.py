@@ -1,4 +1,5 @@
 from rules.missing_record_rule import MissingRecordRule, MissingInLeft, MissingInRight, FileMatching
+from exceptions.base_exception import MissingBomFileError, EmptyFolderError
 
 class FileInspectorConfig:
     # For type selector radio buttons configuration
