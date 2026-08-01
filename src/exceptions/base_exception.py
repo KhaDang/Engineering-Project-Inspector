@@ -10,3 +10,8 @@ class EmptyFolderError(
     EngineeringFileManagerError
 ):
     pass
+
+class InvalidColumnMappingError(
+    EngineeringFileManagerError
+):
+    pass

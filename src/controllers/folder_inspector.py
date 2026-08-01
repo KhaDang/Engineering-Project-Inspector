@@ -14,9 +14,10 @@ from workflows.folder_inspector_config import FolderInspectorConfig
 from services.folder_scanner import FolderScanner, count_file_types
 from services.comparison_service import ComparisonService
 from services.report_formatter import ReportFormatter
+from services.error_handler import ErrorHandler
 
-# Import issues
-from models.comparison_issue import MissingInLeft, MissingInRight, FileMatching
+# import Exceptions
+from exceptions.base_exception import EngineeringFileManagerError
 
 # Import Validator
 from rules.validation_engine import ValidationEngine
@@ -31,6 +32,9 @@ class FolderInspector(ttk.Frame):
 
         # Instance for Configurations
         self.config = FolderInspectorConfig()
+
+        # Error handler
+        self.error_handler = ErrorHandler()
 
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
@@ -104,19 +108,27 @@ class FolderInspector(ttk.Frame):
         self.progress_message.pack(fill="x")
 
     def on_compare(self):
-        t1 = datetime.now()
-        # Scan left folder
-        left_path = self.left_folder_selector.get()
-        left_dic = self.folder_scanner.scan_folder(left_path)
+        try:
+            # Scan left folder
+            left_path = self.left_folder_selector.get()
+            left_dic = self.folder_scanner.scan_folder(left_path)
+        except EngineeringFileManagerError as e:
+            self.error_handler.handle(e)
+            return
 
 
+        try:
         # Scan right folder
-        right_path = self.right_folder_selector.get()
-        right_dic = self.folder_scanner.scan_folder(
-            right_path,
-            self.progress_message.start_progress,
-            self.progress_message.update_progress
-        )
+            right_path = self.right_folder_selector.get()
+            right_dic = self.folder_scanner.scan_folder(
+                right_path,
+                self.progress_message.start_progress,
+                self.progress_message.update_progress
+            )
+        except EngineeringFileManagerError as e:
+            self.error_handler.handle(e)
+            return
+
         # Update message box files found, list all types of drawing records
         left_stats = count_file_types(self, left_dic)
         right_stats = count_file_types(self, right_dic)
@@ -139,10 +151,12 @@ class FolderInspector(ttk.Frame):
             right_dic,
         )
 
-        t2 = datetime.now()
-
         self.report_table.load_records_fol(self.comparison_results)
 
+    def on_clear(self):
+        self.comparison_results=[]
+        self.report_table.clear()
+        self.progress_message.clear()
 
     def export_report(self):
         self.progress_message.warning("Exporting...")

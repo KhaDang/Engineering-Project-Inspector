@@ -17,6 +17,11 @@ from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
 from services.report_formatter import ReportFormatter
+from services.error_handler import ErrorHandler
+
+# import Exceptions
+from exceptions.base_exception import EngineeringFileManagerError
+
 
 # Import Rules/ValidationEngine
 from rules.validation_engine import ValidationEngine
@@ -30,6 +35,9 @@ class RevisionsInspector(ttk.Frame):
 
         # Instance for Configurations
         self.config = RevInspectorConfig()
+
+        # Instance for Error Handler
+        self.error_handler = ErrorHandler()
 
         # Instance for FolderScanner
         self.folder_scanner = FolderScanner()
@@ -117,22 +125,30 @@ class RevisionsInspector(ttk.Frame):
 
     def on_compare(self):
 
-        t1 = datetime.now()
         # Read BOM
         bom_path = self.bom_selector.get()
         selected_columns = self.column_selector.get()
-        bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
+
+        try:
+            bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
+        except EngineeringFileManagerError as e:
+            self.error_handler.handle(e)
+            return
 
         # Update message box rows found
         self.progress_message.info(f"BOM records: {len(bom_dic)}")
 
+        try:
         # Scan Folder, update progress bar
-        folder_path = self.folder_selector.get()
-        folder_dic = self.folder_scanner.parse_filename(
-            folder_path,
-            self.progress_message.start_progress,
-            self.progress_message.update_progress
-        )
+            folder_path = self.folder_selector.get()
+            folder_dic = self.folder_scanner.parse_filename(
+                folder_path,
+                self.progress_message.start_progress,
+                self.progress_message.update_progress
+            )
+        except EngineeringFileManagerError as e:
+            self.error_handler.handle(e)
+            return
 
         # Update message box files found, list all types of drawing records
         stats = count_file_types(self, folder_dic)

@@ -8,6 +8,10 @@ from models.drawing_record import DrawingRecord
 #Import filename_parser
 from services.filename_parser import FileNameParser
 
+
+# Import Exception
+from exceptions.base_exception import EmptyFolderError
+
 class FolderScanner:
 
     def __init__(self):
@@ -23,13 +27,20 @@ class FolderScanner:
             progress_max = None,
             progress_callback = None,
             ) -> dict[str, DrawingRecord]:
-        search_folder = Path(fr"{folder_path}")
+
 
         # -----------------------------
         # Build file index
         # (Much faster than searching repeatedly)
         # -----------------------------
 
+
+
+
+        if not os.path.isdir(folder_path):
+            raise EmptyFolderError(folder_path)
+
+        search_folder = Path(fr"{folder_path}")
         file_index = defaultdict(lambda: defaultdict(list))
 
         for root, dirs, files in os.walk(search_folder):
@@ -86,6 +97,10 @@ class FolderScanner:
             progress_max=None,
             progress_callback=None,
                 ) -> dict[str, DrawingRecord]:
+
+        if not os.path.isdir(folder_path):
+            raise EmptyFolderError(folder_path)
+
 
         records = {}
 
