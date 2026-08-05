@@ -203,6 +203,11 @@ class FilesInspector(ttk.Frame):
         self.report_table.load_records(filtered)
         self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")
 
+    def get_result(self):
+        if self.comparison_results:
+            return self.comparison_results
+        return None
+
         ## Helpful debug
         # print("----------------")
         # print("update_base_record")

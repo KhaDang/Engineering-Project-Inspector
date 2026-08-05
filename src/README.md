@@ -90,4 +90,4 @@ MIT
 
 ## Build Script
 
-MIT
+ pyinstaller --onefile --windowed --icon=src/assets/logo.ico --add-data "src/assets;src/assets" src/main.py

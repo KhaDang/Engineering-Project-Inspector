@@ -4,13 +4,29 @@ from ttkbootstrap.constants import *
 # Import UI
 from views.path_selector import PathSelector, BrowseType
 
-class PopupWindow(ttk.Frame):
+from dataclasses import dataclass, field
+from pathlib import Path
 
-    find_list: []
+@dataclass
+class CopyRequest:
 
-    def __init__(self, master):
+    search_folder: Path
+
+    destination_folder: Path
+
+    # file_types: list[str]
+    #
+    # overwrite: bool
+
+class CopyMissingDialog(ttk.Frame): # View
+    def __init__(self,
+                 master,
+                 on_copy_missing_files, # For parent call
+                 ):
         super().__init__(padding=20)
-        self.find_list: []
+
+        self.on_copy_missing_files = on_copy_missing_files
+
         popup = ttk.Toplevel(title="Find missing files", size=(600, 300))
 
         # header and labelframe folder to find
@@ -47,7 +63,7 @@ class PopupWindow(ttk.Frame):
             popup,
             text="Find...",
             width=10,
-            command=self.on_find_missing
+            command=self.on_trigger
         )
         trigger_button.pack(fill='x')
 
@@ -58,5 +74,13 @@ class PopupWindow(ttk.Frame):
         # Optional: Pauses main code execution until this window is destroyed
         popup.wait_window()
 
-    def on_find_missing(self):
-        ...
+    def on_trigger(self):
+        request = CopyRequest(
+                            search_folder= self.folder_find.get(),
+                            destination_folder = self.folder_out.get()
+        )
+
+        self.on_copy_missing_files(request)
+
+
+

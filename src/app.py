@@ -1,4 +1,5 @@
 import sys
+import os
 
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
@@ -7,8 +8,10 @@ from ttkbootstrap.constants import *
 from controllers.file_inspector import FilesInspector
 from controllers.revision_inspector import RevisionsInspector
 from controllers.folder_inspector import FolderInspector
-from controllers.popup_window import PopupWindow
 from services.theme_manager import ThemeManager
+
+# Import Tools
+from controllers.tools.copy_missing_controller import CopyMissingController
 
 # Import Menu bar
 from views.menu_bar import MenuBar
@@ -37,8 +40,12 @@ class EngineeringFileManagerApp:
 
     def create_window(self):
         self.app = tb.Window(themename=self.settings.theme)
+
         self.app.title("Engineering File Manager")
-        self.app.iconbitmap("src/assets/engineering.ico")
+
+        icon_path = self.get_resource_path("src/assets/engineering.ico")
+        self.app.iconbitmap(icon_path)
+
         self.app.geometry(f"{self.settings.window_width}x{self.settings.window_height}")
 
     def create_notebook(self):
@@ -96,9 +103,33 @@ class EngineeringFileManagerApp:
         self.settings.theme = theme_name
         self.settings.save()
 
+
     def open_popup(self):
-        popup = PopupWindow(self.app)
+
         current_tab_object = self.notebook.nametowidget(self.notebook.select())
+
+        if current_tab_object.get_result():
+            copy_missing_controller = CopyMissingController(
+                parent=self.app,
+                comparison_result=current_tab_object.get_result()
+            )
+            copy_missing_controller.show()
+        else:
+            print("Nothing to copy")
+
+
+    def get_resource_path(self,relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
+
+
+
 
 
 
