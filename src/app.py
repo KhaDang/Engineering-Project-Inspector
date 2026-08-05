@@ -7,7 +7,7 @@ from ttkbootstrap.constants import *
 from controllers.file_inspector import FilesInspector
 from controllers.revision_inspector import RevisionsInspector
 from controllers.folder_inspector import FolderInspector
-# from controllers.tab_compare_two_files import FileToFile
+from controllers.popup_window import PopupWindow
 from services.theme_manager import ThemeManager
 
 # Import Menu bar
@@ -64,7 +64,8 @@ class EngineeringFileManagerApp:
             self.on_export,
             self.load_settings,
             self.on_clear,
-            self.on_exit
+            self.on_exit,
+            self.open_popup,
         )
         MenuBar(self.app, bind_menubar_events, self.on_theme_changed)
         
@@ -94,3 +95,12 @@ class EngineeringFileManagerApp:
         # Save theme_name for next run
         self.settings.theme = theme_name
         self.settings.save()
+
+    def open_popup(self):
+        popup = PopupWindow(self.app)
+        current_tab_object = self.notebook.nametowidget(self.notebook.select())
+
+
+
+
+

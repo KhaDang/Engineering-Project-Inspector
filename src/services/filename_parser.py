@@ -6,6 +6,7 @@ import re
 
 class FileNameParser:
     PATTERNS = [
+        r"^(?P<number>.+)_(?P<revision>[A-Z])$",
 
         r"^(?P<number>.+)-(?P<revision>[A-Z])$",
 

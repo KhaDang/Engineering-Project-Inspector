@@ -10,7 +10,7 @@ class MenuBarEventHandler:
     on_loadsettings: Callable | None = None
     on_clear: Callable | None = None
     on_exit: Callable | None = None
-
+    on_find_missing: Callable | None = None
 
 @dataclass
 class MenuItem:
@@ -30,6 +30,7 @@ class MenuBar:
         FILE_MENU = [
 
             MenuItem("Export", event.on_export),
+            MenuItem("Find mising", event.on_find_missing),
             MenuItem(separator=True),
             MenuItem("Exit",event.on_exit),
         ]
