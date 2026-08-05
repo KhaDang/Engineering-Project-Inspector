@@ -17,7 +17,10 @@ from services.folder_scanner import FolderScanner, count_file_types
 from services.bom_reader import BomReader
 from services.comparison_service import ComparisonService
 from services.report_formatter import ReportFormatter
-from services.error_handler import ErrorHandler, MissingBomFileError
+from services.error_handler import ErrorHandler
+
+# import Exceptions
+from exceptions.base_exception import EngineeringFileManagerError
 
 # Import Rules/ValidationEngine
 from rules.validation_engine import ValidationEngine
@@ -132,23 +135,29 @@ class FilesInspector(ttk.Frame):
         try:
             bom_dic = self.bom_reader.read_bom(bom_path, selected_columns)
 
-        except MissingBomFileError as e:
+            # Update message box rows found
+            self.progress_message.info(f"BOM records: {len(bom_dic)}")
+
+        except EngineeringFileManagerError as e:
             self.error_handler.handle(e)
+            return # Stop the loop immediately
 
 
-        # Update message box rows found
-        self.progress_message.info(f"BOM records: {len(bom_dic)}")
-
-        # Scan Folder, update progress bar
-        folder_path = self.folder_selector.get()
-        folder_dic = self.folder_scanner.scan_folder(
-            folder_path,
-            self.progress_message.start_progress,
-            self.progress_message.update_progress
-        )
+        try:
+            # Scan Folder, update progress bar
+            folder_path = self.folder_selector.get()
+            folder_dic = self.folder_scanner.scan_folder(
+                folder_path,
+                self.progress_message.start_progress,
+                self.progress_message.update_progress
+            )
+        except EngineeringFileManagerError as e:
+            self.error_handler.handle(e)
+            return
 
         # Update message box files found, list all types of drawing records
-        stats = count_file_types(self,folder_dic)
+
+        stats = count_file_types(self, folder_dic)
 
         self.r_formatter.report(
             self.progress_message,
@@ -160,7 +169,6 @@ class FilesInspector(ttk.Frame):
             bom_dic,
             folder_dic
         )
-
         self.report_table.load_records(self.comparison_results)
 
     def on_bom_selected(self, bom_path):

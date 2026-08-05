@@ -1,3 +1,5 @@
+from plistlib import InvalidFileException
+
 import pandas as pd
 from pathlib import Path
 import openpyxl
@@ -6,7 +8,7 @@ import openpyxl
 from models.drawing_record import DrawingRecord
 
 # Import Exception
-from exceptions.base_exception import MissingBomFileError
+from exceptions.base_exception import MissingBomFileError, InvalidColumnMappingError
 
 
 class BomReader:
@@ -33,14 +35,20 @@ class BomReader:
              selected_columns: {},
          ) -> dict[str,DrawingRecord]:
 
-        print(len(file_path))
         # Manage the error
-        if not Path(file_path).exists() or len(file_path) == 0:
+        if not Path(file_path).is_file():
             raise MissingBomFileError(file_path)
+
+        for col, value in selected_columns.items():
+            if not value:
+                print(f"debug invalid columns")
+                raise InvalidColumnMappingError(file_path)
 
         # Read the excel file and store it into data frame
         bom_file = Path(fr"{file_path}")
         df = pd.read_excel(bom_file, header=1)
+
+
 
         # Create empty dict to store result
         records: dict[str, DrawingRecord] = {}

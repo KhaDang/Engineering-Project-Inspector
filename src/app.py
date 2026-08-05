@@ -38,6 +38,7 @@ class EngineeringFileManagerApp:
     def create_window(self):
         self.app = tb.Window(themename=self.settings.theme)
         self.app.title("Engineering File Manager")
+        self.app.iconbitmap("src/assets/engineering.ico")
         self.app.geometry(f"{self.settings.window_width}x{self.settings.window_height}")
 
     def create_notebook(self):
