@@ -14,8 +14,7 @@ from services.theme_manager import ThemeManager
 from controllers.tools.copy_missing_controller import CopyMissingController
 
 # Import Menu bar
-from views.menu_bar import MenuBar
-from views.menu_bar import MenuBarEventHandler
+from views.menu_bar import MenuBar, MenuBarEventHandler
 
 # Import app_setting
 from workflows.app_settings import Settings
@@ -108,14 +107,14 @@ class EngineeringFileManagerApp:
 
         current_tab_object = self.notebook.nametowidget(self.notebook.select())
 
-        if current_tab_object.get_result():
-            copy_missing_controller = CopyMissingController(
-                parent=self.app,
-                comparison_result=current_tab_object.get_result()
-            )
-            copy_missing_controller.show()
-        else:
-            print("Nothing to copy")
+        # if current_tab_object.get_result():
+        copy_missing_controller = CopyMissingController(
+            parent=self.app,
+            comparison_result=current_tab_object.get_result()
+        )
+        copy_missing_controller.show()
+        # else:
+        #     print("Nothing to copy")
 
 
     def get_resource_path(self,relative_path):

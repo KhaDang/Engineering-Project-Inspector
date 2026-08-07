@@ -34,9 +34,6 @@ class FolderScanner:
         # (Much faster than searching repeatedly)
         # -----------------------------
 
-
-
-
         if not os.path.isdir(folder_path):
             raise EmptyFolderError(folder_path)
 

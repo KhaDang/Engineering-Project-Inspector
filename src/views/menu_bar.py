@@ -4,6 +4,9 @@ import tkinter as tk
 from dataclasses import dataclass
 from typing import Callable
 
+# Import interfaces
+from observer import Observer
+
 @dataclass
 class MenuBarEventHandler:
     on_export: Callable | None = None
@@ -21,7 +24,7 @@ class MenuItem:
     accelerator: str = ""
 
 
-class MenuBar:
+class MenuBar(Observer):
     def __init__(self,
                  master,
                  event: MenuBarEventHandler,
@@ -73,7 +76,16 @@ class MenuBar:
         self.add_menu("File", FILE_MENU)
         self.add_menu("Edit", EDIT_MENU)
         self.add_menu("Theme", theme_menu)
+
+
         master.config(menu=self.menubar)
+
+    def set_enabled(
+            self,
+            menu_name,
+            enabled
+    ):
+        self.menubar.entryconfig(menu_name, state='normal')
 
 
     def on_open(self):
@@ -88,3 +100,12 @@ class MenuBar:
         self.menubar.add_cascade(label=menu_label ,menu=submenu)
 
 
+    def update(self, state):
+
+        self.set_enabled(
+
+            "Copy Missing Files",
+
+            len(state.comparison_results) > 0
+
+        )
