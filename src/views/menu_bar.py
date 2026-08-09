@@ -1,111 +1,76 @@
-import sys
 import tkinter as tk
-
-from dataclasses import dataclass
-from typing import Callable
+from workflows.menubar_configs import MenubarConfig
 
 # Import interfaces
 from observer import Observer
 
-@dataclass
-class MenuBarEventHandler:
-    on_export: Callable | None = None
-    on_loadsettings: Callable | None = None
-    on_clear: Callable | None = None
-    on_exit: Callable | None = None
-    on_find_missing: Callable | None = None
-
-@dataclass
-class MenuItem:
-
-    label: str | None =  None
-    command: Callable | None = None
-    separator: bool = False
-    accelerator: str = ""
-
-
 class MenuBar(Observer):
     def __init__(self,
                  master,
-                 event: MenuBarEventHandler,
-                 on_theme_changed=None):
+                 state,
+                 blind_events,
+                ):
 
-        FILE_MENU = [
+        self.sub_menu = {}
 
-            MenuItem("Export", event.on_export),
-            MenuItem("Find mising", event.on_find_missing),
-            MenuItem(separator=True),
-            MenuItem("Exit",event.on_exit),
-        ]
-
-        EDIT_MENU = [
-
-            MenuItem("Clear", event.on_clear),
-            MenuItem(separator=True),
-            # MenuItem("Copy", on_exit),
-        ]
-
-        THEMES = {
-
-            "Flatly": "flatly",
-
-            "Solar": "solar",
-
-            "Cosmo": "cosmo",
-
-            "Superhero": "superhero",
-
-            "Minty": "minty",
-
-            "Cyborg": "cyborg",
-
-        }
-
-        theme_menu = []
-        for label, theme in THEMES.items():
-            theme = MenuItem(
-
-                label=label,
-
-                command=lambda t=theme:on_theme_changed(t)
-
-            )
-            theme_menu.append(theme)
+        config = MenubarConfig(blind_events)
 
         self.menubar = tk.Menu(master)
-        self.add_menu("File", FILE_MENU)
-        self.add_menu("Edit", EDIT_MENU)
-        self.add_menu("Theme", theme_menu)
 
+        self.add_menu("File", config.FILE_MENU)
+        self.add_menu("Edit", config.EDIT_MENU)
+        self.add_menu("Theme", config.THEME_MENU)
+
+        state.add_observer(self)  # Add Menubar into observers
 
         master.config(menu=self.menubar)
 
-    def set_enabled(
-            self,
-            menu_name,
-            enabled
-    ):
-        self.menubar.entryconfig(menu_name, state='normal')
 
-
-    def on_open(self):
-        ...
-    def add_menu(self,menu_label, menu_config):
+    def add_menu(self, menu_label, menu_commands):
         submenu = tk.Menu(self.menubar, tearoff=False)
-        for item in menu_config:
+        for item in menu_commands:
+
             if item.separator:
                 submenu.add_separator()
                 continue
             submenu.add_command(label=item.label, command=item.command)
+
+            if item.is_enable:
+                submenu.entryconfig(item.label, state='normal')
+            else:
+                submenu.entryconfig(item.label, state='disable')
+
         self.menubar.add_cascade(label=menu_label ,menu=submenu)
 
+        # Add submenu to a dictionary
+        self.sub_menu[menu_label] =  submenu
+
+
+    def set_enabled(
+            self,
+            label,
+            menu_name,
+
+                ):
+        self.sub_menu[label].entryconfig(menu_name, state='normal')
+
+    def set_disabled(
+            self,
+            label,
+            menu_name,
+
+                ):
+        self.sub_menu[label].entryconfig(menu_name, state='disable')
 
     def update(self, state):
+            if state.comparison_results:
+                self.set_enabled(label='File', menu_name='Export Report')
+                self.set_enabled(label='File', menu_name='Find missing files...')
+                self.set_enabled(label='Edit', menu_name='Clear')
 
-        self.set_enabled(
+            else:
+                self.set_disabled(label='File', menu_name='Export Report')
+                self.set_disabled(label='File', menu_name='Find missing files...')
+                self.set_disabled(label='Edit', menu_name='Clear')
 
-            "Copy Missing Files",
-
-            len(state.comparison_results) > 0
-
-        )
+        # self.set_enabled(sub_menu='File', menu_name='Find missing')

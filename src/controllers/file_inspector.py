@@ -30,8 +30,10 @@ from rules.validation_engine import ValidationEngine
 from datetime import datetime
 
 class FilesInspector(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, state):
         super().__init__(parent, padding=20)
+
+        self.state = state
 
         # Instance for Workflow configuration
         self.config = FileInspectorConfig()
@@ -171,6 +173,10 @@ class FilesInspector(ttk.Frame):
         )
         self.report_table.load_records(self.comparison_results)
 
+        # Subject updated, notify observer
+        self.state.set_comparison_results(self.comparison_results)
+
+
     def on_bom_selected(self, bom_path):
         headers = self.bom_reader.read_header(bom_path)
         self.column_selector.set_values(headers)
@@ -180,6 +186,9 @@ class FilesInspector(ttk.Frame):
         self.comparison_results=[]
         self.report_table.clear()
         self.progress_message.clear()
+        # Announce that's I have removed everything!!
+        self.state.set_comparison_results(self.comparison_results)
+        self.state.comparison_completed = False
 
 
     # Temporarily use, to relocate to Services,
@@ -201,7 +210,8 @@ class FilesInspector(ttk.Frame):
         ]
 
         self.report_table.load_records(filtered)
-        self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")
+        if self.state.comparison_completed:
+            self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")
 
     def get_result(self):
         if self.comparison_results:

@@ -1,3 +1,4 @@
+import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
@@ -5,6 +6,10 @@ from ttkbootstrap.constants import *
 from views.path_selector import PathSelector, BrowseType
 from views.dialog_button_bar import DialogButtonBar
 from views.box_selector import BoxSelector
+from views.type_selector import TypeSelector
+
+# Import configurations
+from workflows.dialog_copy_missing_configs import DialogCopyMissingConfig
 
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -23,18 +28,26 @@ class CopyRequest:
 class CopyMissingDialog(ttk.Frame): # View
     def __init__(self,
                  master,
-                 on_copy_missing_files, # For calling from App
+                 on_copy_missing_files, # For calling from Controller
                  ):
         super().__init__(padding=20)
+
+        self.setting = DialogCopyMissingConfig()
 
         self.on_copy_missing_files = on_copy_missing_files
 
         self.popup = ttk.Toplevel(title="Find missing files", size=(600, 300))
+
+        icon_path = self.get_resource_path("src/assets/search_icon.ico")
+
+        self.popup.iconbitmap(icon_path)
+
+
         self.popup.resizable(False, False) # Lock size scaling
         # header and labelframe folder to find
-        folder_to_find = "Copy missing files."
-        self.dialog_lf = ttk.Labelframe(self.popup, text=folder_to_find, padding=20)
-        self.dialog_lf.pack(fill=X, expand=YES, anchor=N, padx=20, pady=20)
+
+        self.dialog_lf = ttk.Labelframe(self.popup, text="Find missing files then copy to folder...", padding=20)
+        self.dialog_lf.pack(fill=X, expand=YES, anchor=N, padx=20, pady=5)
 
         # Add path selector widget
         self.folder_find = PathSelector(
@@ -53,20 +66,21 @@ class CopyMissingDialog(ttk.Frame): # View
         self.folder_out.pack(fill="x")
 
         # Add BoxSelector
-        CHECK_OPTIONS = {
-            ".sldprt": ".sldprt",
-            ".sldasm": ".sldasm",
-            ".slddrw": ".slddrw",
-            ".pdf": ".pdf",
-
-        }
         self.box_selector = BoxSelector(
             self.dialog_lf,
-            label='Type',
-            options=CHECK_OPTIONS,
+            label='Type:',
+            options=self.setting.CHECK_OPTIONS,
             on_update_table=None
         )
-        self.box_selector.pack(fill='x')
+        self.box_selector.pack(fill='x', pady=10)
+
+        # Add mode selector for copying
+        self.type_selector = TypeSelector(
+            self.dialog_lf,
+            "Copy mode:",
+            self.setting.TYPE_OPTIONS,
+            )
+        self.type_selector.pack(fill='x')
 
         # Add Buttons
         self.button_bar = DialogButtonBar(self.popup,
@@ -79,12 +93,24 @@ class CopyMissingDialog(ttk.Frame): # View
         # popup.attributes('-topmost', True)  # Keeps window above others
         self.popup.place_window_center()
 
+
         # --- MODAL LOGIC START ---
         self.popup.grab_set()  # Redirects all user interaction to this window only
         # --- MODAL LOGIC END ---
 
         # Optional: Pauses main code execution until this window is destroyed
         self.popup.wait_window()
+
+
+    def get_resource_path(self,relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
 
     def on_find(self):
         request = CopyRequest(

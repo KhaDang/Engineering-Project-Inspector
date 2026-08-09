@@ -14,7 +14,7 @@ from services.theme_manager import ThemeManager
 from controllers.tools.copy_missing_controller import CopyMissingController
 
 # Import Menu bar
-from views.menu_bar import MenuBar, MenuBarEventHandler
+from views.menu_bar import MenuBar
 
 # Import app_setting
 from workflows.app_settings import Settings
@@ -22,19 +22,19 @@ from workflows.app_settings import Settings
 
 class EngineeringFileManagerApp:
 
-    def __init__(self):
+    def __init__(self, state):
+
+        self.state = state
+
         self.settings = Settings.load()
 
         self.create_window()
+        # Have to be initialized after window - Window itself has theme
+        self.theme_manager = ThemeManager(tb.Style(self.settings.theme))
 
         self.create_menu()
 
         self.create_notebook()
-
-
-        self.bind_events()
-
-        self.theme_manager = ThemeManager(tb.Style(self.settings.theme))
 
 
     def create_window(self):
@@ -52,9 +52,9 @@ class EngineeringFileManagerApp:
         self.notebook.pack(padx=20, pady=20, fill=BOTH, expand=True)
 
         # Instantiate the tab objects (passing the notebook as the parent container)
-        self.files_inspector = FilesInspector(self.notebook)
-        self.revision_inspector = RevisionsInspector(self.notebook)
-        self.folder_inspector = FolderInspector(self.notebook)
+        self.files_inspector = FilesInspector(self.notebook, self.state)
+        self.revision_inspector = RevisionsInspector(self.notebook, self.state)
+        self.folder_inspector = FolderInspector(self.notebook, self.state)
 
         # Link the modular tab objects to the notebook controllers
         self.notebook.add(self.files_inspector, text="Files Inspector")
@@ -62,18 +62,26 @@ class EngineeringFileManagerApp:
         self.notebook.add(self.folder_inspector, text="Folder Inspector")
         # self.notebook.add(self.file_to_file_tab, text="Compare 2 files")
 
+        self.notebook.bind(
+            "<<NotebookTabChanged>>",
+            self.on_tab_changed
+        )
     def run(self):
+
+
         self.app.mainloop()
 
     def create_menu(self):
-        bind_menubar_events = MenuBarEventHandler(
-            self.on_export,
-            self.load_settings,
-            self.on_clear,
-            self.on_exit,
-            self.open_popup,
-        )
-        MenuBar(self.app, bind_menubar_events, self.on_theme_changed)
+        bind_menubar_events = {
+            'on_export': self.on_export,
+            'load_setting' : self.load_settings,
+            'on_clear': self.on_clear,
+            'on_exit': self.on_exit,
+            'on_popup': self.open_popup,
+            'on_theme_changed': self.on_theme_changed,
+
+        }
+        MenuBar(self.app, self.state, bind_menubar_events)
         
 
     def on_exit(self):
@@ -96,6 +104,7 @@ class EngineeringFileManagerApp:
 
     def on_theme_changed(self, theme_name):
         # Switch the entire window theme dynamically
+
         self.theme_manager.apply_theme(theme_name)
 
         # Save theme_name for next run
@@ -127,10 +136,28 @@ class EngineeringFileManagerApp:
 
         return os.path.join(base_path, relative_path)
 
+    def on_tab_changed(self, event):
+        current_tab_object = self.notebook.nametowidget(self.notebook.select())
+        self.state.comparison_results = current_tab_object.get_result()
+        self.state.comparison_completed = True if self.state.comparison_results else False
 
 
+        selected_widget = str(
+                            event.widget.nametowidget(
+                                event.widget.select()
+                            )
+        )
+
+        for tab in self.notebook.tabs():
+
+            if tab == selected_widget:
+                self.state.set_current_tab(tab)
+                break
 
 
-
-
-
+        ## Helpful debug
+        # print("----------------")
+        # print("update_base_record")
+        # print("self =", self)
+        # print("class =", self.__class__.__name__)
+        # print("attributes =", self.__dict__.keys())

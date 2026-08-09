@@ -26,9 +26,11 @@ from rules.validation_engine import ValidationEngine
 from datetime import datetime
 
 class FolderInspector(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, state):
 
         super().__init__(parent, padding=20)
+
+        self.state = state
 
         # Instance for Configurations
         self.config = FolderInspectorConfig()
@@ -45,6 +47,9 @@ class FolderInspector(ttk.Frame):
                 rules= self.config.RULES
             )
         )
+
+        # Comparison result
+        self.comparison_results = []
 
         # Instance for Report Formatter
         self.r_formatter = ReportFormatter()
@@ -153,10 +158,17 @@ class FolderInspector(ttk.Frame):
 
         self.report_table.load_records_fol(self.comparison_results)
 
+        # Subject updated, notify observer
+        self.state.set_comparison_results(self.comparison_results)
+
     def on_clear(self):
         self.comparison_results=[]
         self.report_table.clear()
         self.progress_message.clear()
+
+        # Announce that's I have removed everything!!
+        self.state.set_comparison_results(self.comparison_results)
+        self.state.comparison_completed = False
 
     def export_report(self):
         self.progress_message.warning("Exporting...")
@@ -176,6 +188,10 @@ class FolderInspector(ttk.Frame):
         ]
 
         self.report_table.load_records_fol(filtered)
+        if self.state.comparison_completed:
+            self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")
 
-        self.progress_message.info(f"{self.config.TYPE_OPTIONS[selected_option]} : {len(filtered)} files")
-
+    def get_result(self):
+        if self.comparison_results:
+            return self.comparison_results
+        return None

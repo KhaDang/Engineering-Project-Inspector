@@ -8,6 +8,8 @@ class ApplicationState:
 
         self.current_tab = None
 
+        self.comparison_completed: bool = False
+
         self.theme = "flatly"
 
         self.project_path = None
@@ -20,5 +22,22 @@ class ApplicationState:
         self._observers.remove(observer)
 
     def notify(self):
+
         for observer in self._observers:
             observer.update(self)
+
+    def set_comparison_results(self, results):
+        self.comparison_results = results
+        self.comparison_completed = True
+        self.notify()
+
+    def set_current_tab(self, tab_name):
+
+        if self.current_tab == tab_name:
+            return
+
+        self.current_tab = tab_name
+
+        self.notify()
+
+        print(f"Observer get notified the current tab is: {self.current_tab}")

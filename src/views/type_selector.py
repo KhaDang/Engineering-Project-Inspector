@@ -9,7 +9,13 @@ class TypeSelector(ttk.Frame):
         Radion button
 
     """
-    def __init__(self,master,label,options,on_update_table):
+    def __init__(
+            self,
+            master,
+            label,
+            options,
+            on_update_table=None
+        ):
         super().__init__(master)
         self.selected_option = ttk.StringVar()
 
@@ -47,5 +53,6 @@ class TypeSelector(ttk.Frame):
         self.selected_option.set("default")
 
     def on_select(self):
-        print(self.selected_option.get())
-        self.on_update_table()
+        if self.on_update_table:
+            self.on_update_table()
+        return
