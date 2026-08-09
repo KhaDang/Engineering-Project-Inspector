@@ -18,6 +18,10 @@ class CopyMissingController:
         dialog = CopyMissingDialog(self.master, self.on_copy_missing_files)
 
     def on_copy_missing_files(self, request):
-        find_folder = self.folder_scanner.scan_folder(request.search_folder, None, None)
+        for t in request.file_types:
+            print(t)
+
+        print(request.copy_mode)
+        # find_folder = self.folder_scanner.scan_folder(request.search_folder, None, None)
 
 

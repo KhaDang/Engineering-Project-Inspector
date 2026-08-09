@@ -21,7 +21,9 @@ class CopyRequest:
 
     destination_folder: Path
 
-    # file_types: list[str]
+    file_types: list[str]
+
+    copy_mode: str
     #
     # overwrite: bool
 
@@ -80,6 +82,7 @@ class CopyMissingDialog(ttk.Frame): # View
             "Copy mode:",
             self.setting.TYPE_OPTIONS,
             )
+
         self.type_selector.pack(fill='x')
 
         # Add Buttons
@@ -115,7 +118,9 @@ class CopyMissingDialog(ttk.Frame): # View
     def on_find(self):
         request = CopyRequest(
                             search_folder= self.folder_find.get(),
-                            destination_folder = self.folder_out.get()
+                            destination_folder = self.folder_out.get(),
+                            file_types=self.box_selector.get_box_values(),
+                            copy_mode= self.type_selector.selected_option.get(),
         )
 
         self.on_copy_missing_files(request)
