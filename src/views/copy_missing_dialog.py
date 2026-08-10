@@ -11,21 +11,11 @@ from views.type_selector import TypeSelector
 # Import configurations
 from workflows.dialog_copy_missing_configs import DialogCopyMissingConfig
 
-from dataclasses import dataclass, field
-from pathlib import Path
+# Import
 
-@dataclass
-class CopyRequest:
+ # Import Copy request
+from models.copy_request import CopyRequest
 
-    search_folder: Path
-
-    destination_folder: Path
-
-    file_types: list[str]
-
-    copy_mode: str
-    #
-    # overwrite: bool
 
 class CopyMissingDialog(ttk.Frame): # View
     def __init__(self,
@@ -116,14 +106,16 @@ class CopyMissingDialog(ttk.Frame): # View
         return os.path.join(base_path, relative_path)
 
     def on_find(self):
-        request = CopyRequest(
-                            search_folder= self.folder_find.get(),
-                            destination_folder = self.folder_out.get(),
-                            file_types=self.box_selector.get_box_values(),
-                            copy_mode= self.type_selector.selected_option.get(),
-        )
+        key = self.type_selector.selected_option.get()
 
+        request = CopyRequest(
+                            source= self.folder_find.get(),
+                            destination = self.folder_out.get(),
+                            extensions=self.box_selector.get_box_values(),
+                            copy_mode= self.setting.FILTER[key]
+        )
         self.on_copy_missing_files(request)
+
     def on_cancel(self):
         self.popup.destroy()
 
