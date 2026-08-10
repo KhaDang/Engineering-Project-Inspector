@@ -1,4 +1,3 @@
-
 import shutil
 from pathlib import Path
 
@@ -10,7 +9,7 @@ class CopyService:
         self,
         indexed_files,
         request: CopyRequest
-    ):
+            ):
 
         result = CopyResult(
             copied=[],
@@ -19,59 +18,55 @@ class CopyService:
             failed=[]
         )
 
-        request.destination.mkdir(
+        destination_path = Path(request.destination)
+        destination_path.mkdir(
             parents=True,
             exist_ok=True
         )
 
         for drawing in request.lookup_list:
-
             drawing_files = indexed_files.get(drawing)
 
             if not drawing_files:
                 continue
-
             for extension in request.extensions:
+                files = drawing_files.get_path(extension)
+                # if not files:
+                #     continue
+                #
+                # if len(files) > 1:
+                #
+                #     result.duplicates.append(
+                #         f"{drawing}{extension}"
+                #     )
+                #
+                #     continue
+                if files:
+                    source = Path(files)
 
-                files = drawing_files.get(
-                    extension,
-                    []
-                )
+                    print(f'source: {source}')
 
-                if len(files) == 0:
-                    continue
-
-                if len(files) > 1:
-
-                    result.duplicates.append(
-                        f"{drawing}{extension}"
+                    destination = (
+                        destination_path /
+                        source.name
                     )
 
-                    continue
+                    try:
 
-                source = Path(files[0])
+                        shutil.copy2(
+                            source,
+                            destination
+                        )
 
-                destination = (
-                    request.destination /
-                    source.name
-                )
+                        result.copied.append(
+                            destination
+                        )
 
-                try:
+                    except OSError as error:
 
-                    shutil.copy2(
-                        source,
-                        destination
-                    )
-
-                    result.copied.append(
-                        destination
-                    )
-
-                except OSError as error:
-
-                    result.failed.append(
-                        f"{source}: {error}"
-                    )
+                        result.failed.append(
+                            f"{source}: {error}"
+                        )
 
         return result
 

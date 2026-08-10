@@ -44,7 +44,7 @@ class FolderScanner:
             for file in files:
                 name, ext = os.path.splitext(file)
                 ext = ext.lower()
-                if ext in [".sldprt", ".slddrw", ".sldasm", ".pdf"]:
+                if ext in [".sldprt", ".slddrw", ".sldasm", ".pdf", ".step"]:
                     file_index[name][ext].append(
                         os.path.join(root, file)
                     )

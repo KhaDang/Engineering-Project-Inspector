@@ -30,3 +30,13 @@ class DrawingRecord:
             "✓" if self.assembly_path else "",
             "Ready"
         )
+
+    def get_path(self, str_type):
+        switcher = {
+            ".pdf": self.pdf_path,
+            ".slddrw": self.drawing_path,
+            ".sldprt": self.part_path,
+            ".sldasm": self.assembly_path,
+            ".step": self.step_path,
+        }
+        return  switcher.get(str_type, None)

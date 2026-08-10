@@ -72,6 +72,7 @@ class CopyMissingDialog(ttk.Frame): # View
             "Copy mode:",
             self.setting.TYPE_OPTIONS,
             )
+        self.type_selector.select_right()
 
         self.type_selector.pack(fill='x')
 
@@ -114,6 +115,10 @@ class CopyMissingDialog(ttk.Frame): # View
                             extensions=self.box_selector.get_box_values(),
                             copy_mode= self.setting.FILTER[key]
         )
+
+        print(f"type of source path: {type(request.source)}")
+
+        print(f"type of destination path: {type(request.destination)}")
         self.on_copy_missing_files(request)
 
     def on_cancel(self):

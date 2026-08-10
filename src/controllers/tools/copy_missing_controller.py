@@ -1,5 +1,8 @@
 from views.copy_missing_dialog import CopyMissingDialog
+
+
 from services.folder_scanner import FolderScanner
+from services.copy_service import CopyService
 
 class CopyMissingController:
 
@@ -14,6 +17,9 @@ class CopyMissingController:
 
         self.comparison_result = comparison_result
 
+        self.copy_service = CopyService()
+
+
     def show(self):
         dialog = CopyMissingDialog(self.master, self.on_copy_missing_files)
 
@@ -25,7 +31,10 @@ class CopyMissingController:
         ]
         request.lookup_list = lookup_list
 
-        print(request.lookup_list)
+        indexed_files = self.folder_scanner.scan_folder(request.source)
+        results = self.copy_service.copy(indexed_files= indexed_files, request=request)
+
+
         # find_folder = self.folder_scanner.scan_folder(request.search_folder, None, None)
 
 

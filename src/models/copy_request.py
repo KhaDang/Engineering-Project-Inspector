@@ -5,9 +5,9 @@ from typing import Any
 @dataclass
 class CopyRequest:
 
-    source : Path
+    source : str
     extensions: list[str]
-    destination: Path
+    destination: str
     copy_mode: Any
 
     lookup_list: list[str] = None

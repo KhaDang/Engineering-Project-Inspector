@@ -51,6 +51,9 @@ class TypeSelector(ttk.Frame):
 
     def select_default(self):
         self.selected_option.set("default")
+    def select_right(self):
+        self.selected_option.set('right')
+
 
     def on_select(self):
         if self.on_update_table:

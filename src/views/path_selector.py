@@ -65,12 +65,12 @@ class PathSelector(ttk.Frame):
             padx=5,
             pady=5
         )
-        ttk.Button(
+        self.btn = ttk.Button(
             self,
             text=button_text,
             width=10,
-            command=self.browse
-        ).grid(
+            command=self.browse)
+        self.btn.grid(
             row=0,
             column=2,
             padx=(5,10),
@@ -78,25 +78,29 @@ class PathSelector(ttk.Frame):
         )
 
     def browse(self):
-        if self.browse_type == BrowseType.FOLDER:
-            folder = filedialog.askdirectory(
-                title="Select Folder"
-            )
-            if folder:
-                self.path.set(folder)
-        elif self.browse_type == BrowseType.FILE:
-            filename = filedialog.askopenfilename(
-                title="Select File",
-                filetypes=[
-                ("Excel Workbook", "*.xlsx"),
-                ("Excel Workbook 97-2003", "*.xls"),
-                ("All Files", "*.*")
-                ]
-            )
-            if filename:
-                self.path.set(filename)
-                if self.on_path_changed:
-                    self.on_path_changed(filename)
+        self.btn.config(state='disabled')
+        try:
+            if self.browse_type == BrowseType.FOLDER:
+                folder = filedialog.askdirectory(
+                    title="Select Folder"
+                )
+                if folder:
+                    self.path.set(folder)
+            elif self.browse_type == BrowseType.FILE:
+                filename = filedialog.askopenfilename(
+                    title="Select File",
+                    filetypes=[
+                    ("Excel Workbook", "*.xlsx"),
+                    ("Excel Workbook 97-2003", "*.xls"),
+                    ("All Files", "*.*")
+                    ]
+                )
+                if filename:
+                    self.path.set(filename)
+                    if self.on_path_changed:
+                        self.on_path_changed(filename)
+        finally:
+            self.btn.config(state='normal')
 
 
 

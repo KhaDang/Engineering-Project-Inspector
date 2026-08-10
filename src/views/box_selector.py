@@ -40,7 +40,6 @@ class BoxSelector(ttk.Frame):
     def on_changed_checkbox(self):
 
         selected_keys = [key for key, var in self.checkbox_vars.items() if var.get()]
-        print(selected_keys)
 
     def get_box_values(self):
         selected_keys = [key for key, var in self.checkbox_vars.items() if var.get()]
