@@ -68,6 +68,11 @@ class ProgressMessage(ttk.Frame):
         self.console.text.insert("end", f"{timestamp}: {message} \n")
         self.console.text.see("end")
 
+    def confirmed_message(self, message):
+        self.console.text.delete("1.0", tkinter.END)
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        self.console.text.insert("end", f"{timestamp}: {message}")
+        self.console.text.see("end")
 
     def error(self, message):
         ...
@@ -91,3 +96,7 @@ class ProgressMessage(ttk.Frame):
     def finish_progress(self):
 
         self.progressbar["value"] = self.progressbar["maximum"]
+
+    def dialog_console(self):
+        self.console.text.delete("1.0", tkinter.END)
+        self.console.text.config(height=1)

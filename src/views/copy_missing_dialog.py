@@ -7,6 +7,7 @@ from views.path_selector import PathSelector, BrowseType
 from views.dialog_button_bar import DialogButtonBar
 from views.box_selector import BoxSelector
 from views.type_selector import TypeSelector
+from views.progress_message import ProgressMessage
 
 # Import configurations
 from workflows.dialog_copy_missing_configs import DialogCopyMissingConfig
@@ -28,7 +29,7 @@ class CopyMissingDialog(ttk.Frame): # View
 
         self.on_copy_missing_files = on_copy_missing_files
 
-        self.popup = ttk.Toplevel(title="Find missing files", size=(600, 300))
+        self.popup = ttk.Toplevel(title="Find missing files", size=(600, 370))
 
         icon_path = self.get_resource_path("src/assets/search_icon.ico")
 
@@ -76,6 +77,11 @@ class CopyMissingDialog(ttk.Frame): # View
 
         self.type_selector.pack(fill='x')
 
+        # Add progress message
+        self.progress_message = ProgressMessage(self.popup, "")
+        self.progress_message.dialog_console() # Config console only for popup window
+        self.progress_message.pack(fill='x', pady=5, padx=20)
+
         # Add Buttons
         self.button_bar = DialogButtonBar(self.popup,
                                           on_cancel= self.on_cancel,
@@ -115,11 +121,7 @@ class CopyMissingDialog(ttk.Frame): # View
                             extensions=self.box_selector.get_box_values(),
                             copy_mode= self.setting.FILTER[key]
         )
-
-        print(f"type of source path: {type(request.source)}")
-
-        print(f"type of destination path: {type(request.destination)}")
-        self.on_copy_missing_files(request)
+        self.on_copy_missing_files(request, self.progress_message)
 
     def on_cancel(self):
         self.popup.destroy()
