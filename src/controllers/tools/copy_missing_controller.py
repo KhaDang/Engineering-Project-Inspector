@@ -59,7 +59,7 @@ class CopyMissingController:
             self.error_handler.handle(e)
             return
 
-        progress_message.confirmed_message(f'Found and copied {len(results.copied)} files. Process Done!')
+        progress_message.confirmed_message(f'Found and copied {len(results.copied)}/{len(request.lookup_list)} files. Process Done!')
 
 
 

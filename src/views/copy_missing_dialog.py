@@ -42,6 +42,15 @@ class CopyMissingDialog(ttk.Frame): # View
         self.dialog_lf = ttk.Labelframe(self.popup, text="Find missing files then copy to folder...", padding=20)
         self.dialog_lf.pack(fill=X, expand=YES, anchor=N, padx=20, pady=5)
 
+        # Add mode selector for copying
+        self.type_selector = TypeSelector(
+            self.dialog_lf,
+            "Copy mode:",
+            self.setting.TYPE_OPTIONS,
+        )
+        self.type_selector.select_right()
+        self.type_selector.pack(fill='x')
+
         # Add path selector widget
         self.folder_find = PathSelector(
             self.dialog_lf,
@@ -66,16 +75,6 @@ class CopyMissingDialog(ttk.Frame): # View
             on_update_table=None
         )
         self.box_selector.pack(fill='x', pady=10)
-
-        # Add mode selector for copying
-        self.type_selector = TypeSelector(
-            self.dialog_lf,
-            "Copy mode:",
-            self.setting.TYPE_OPTIONS,
-            )
-        self.type_selector.select_right()
-
-        self.type_selector.pack(fill='x')
 
         # Add progress message
         self.progress_message = ProgressMessage(self.popup, "")

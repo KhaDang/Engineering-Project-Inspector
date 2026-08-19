@@ -148,6 +148,7 @@ class RevisionsInspector(ttk.Frame):
                 self.progress_message.start_progress,
                 self.progress_message.update_progress
             )
+
         except EngineeringFileManagerError as e:
             self.error_handler.handle(e)
             return
