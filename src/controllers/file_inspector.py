@@ -118,7 +118,8 @@ class FilesInspector(ttk.Frame):
         # Add Treeview that equals level to Labelframe.
         self.report_table = ReportTable(
             self.result_frame,
-            columns= self.config.REPORT_TABLE_COLUMNS
+            columns= self.config.REPORT_TABLE_COLUMNS,
+            state= self.state
         )
         self.report_table.pack(fill='both', expand=True)
 

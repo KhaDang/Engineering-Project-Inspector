@@ -61,3 +61,21 @@ class ComparisonResult:
             file_in_b,
             ', '.join(issue.message for issue in self.issues)
         )
+
+    def detail_file_types(self):
+        file_in_left_sldprt = self.left_record and self.left_record.part_path
+        file_in_left_slddrw = self.left_record and self.left_record.drawing_path
+        file_in_left_sldasm = self.left_record and self.left_record.assembly_path
+        file_in_left_pdf = self.left_record and self.left_record.pdf_path
+
+        file_in_right_sldprt = self.right_record and self.right_record.part_path
+        file_in_right_slddrw = self.right_record and self.right_record.drawing_path
+        file_in_right_sldasm = self.right_record and self.right_record.assembly_path
+        file_in_right_pdf = self.right_record and self.right_record.pdf_path
+
+        return {
+            ".sldprt": (file_in_left_sldprt, file_in_right_sldprt),
+            ".slddrw": (file_in_left_slddrw, file_in_right_slddrw),
+            ".sldasm": (file_in_left_sldasm, file_in_right_sldasm),
+            ".pdf": (file_in_left_pdf, file_in_right_pdf)
+        }
