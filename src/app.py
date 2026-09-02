@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
@@ -42,7 +43,7 @@ class EngineeringFileManagerApp:
 
         self.app.title("Engineering File Manager")
 
-        icon_path = self.get_resource_path("src/assets/engineering.ico")
+        icon_path = self.get_resource_path("assets/engineering.ico")
         self.app.iconbitmap(icon_path)
 
         self.app.geometry(f"{self.settings.window_width}x{self.settings.window_height}")
@@ -126,15 +127,22 @@ class EngineeringFileManagerApp:
         #     print("Nothing to copy")
 
 
-    def get_resource_path(self,relative_path):
+    def get_resource_path(self,relative_path) -> Path:
         """ Get absolute path to resource, works for dev and for PyInstaller """
-        try:
-            # PyInstaller creates a temp folder and stores path in _MEIPASS
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = os.path.abspath(".")
+        if hasattr(sys, "_MEIPASS"):
+            base_path = Path(sys._MEIPASS)
+        else:
+            # app.py is located inside src
+            base_path = Path(__file__).resolve().parent
+        return base_path/ relative_path
 
-        return os.path.join(base_path, relative_path)
+        # try:
+        #     # PyInstaller creates a temp folder and stores path in _MEIPASS
+        #     base_path = sys._MEIPASS
+        # except Exception:
+        #     base_path = os.path.abspath(".")
+        #
+        # return os.path.join(base_path, relative_path)
 
     def on_tab_changed(self, event):
         current_tab_object = self.notebook.nametowidget(self.notebook.select())

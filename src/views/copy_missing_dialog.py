@@ -1,6 +1,8 @@
 import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from pathlib import Path
+import sys
 
 # Import UI
 from views.path_selector import PathSelector, BrowseType
@@ -31,10 +33,10 @@ class CopyMissingDialog(ttk.Frame): # View
 
         self.popup = ttk.Toplevel(title="Find missing files", size=(600, 370))
 
-        icon_path = self.get_resource_path("src/assets/search_icon.ico")
-
-        self.popup.iconbitmap(icon_path)
-
+        # icon_path = self.get_resource_path("src/assets/search_icon.ico")
+        #
+        # self.popup.iconbitmap(icon_path)
+        # REMOVE ICON FOR FASTER LOADING NEW WINDOW
 
         self.popup.resizable(False, False) # Lock size scaling
         # header and labelframe folder to find
